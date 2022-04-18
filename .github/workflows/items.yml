@@ -1,0 +1,19 @@
+# This is a basic workflow that is manually triggered
+
+name: Build items.json
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  schedule:
+  - cron: "0 2 * * 1-5"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  itemsBuild:
+    runs-on: ubuntu-latest
+    name: Build Items
+    steps:
+      - name: Run GitHub Action on repo
+        id: items
+        uses: OchreFox/league-custom-ddragon@main
