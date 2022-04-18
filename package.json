@@ -1,0 +1,36 @@
+{
+  "name": "league-custom-ddragon",
+  "version": "1.0.0",
+  "description": "Custom versions of DDragon JSON files for other league-related projects",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OchreFox/league-custom-ddragon.git"
+  },
+  "keywords": [
+    "DDragon",
+    "league-of-legends",
+    "CDragon"
+  ],
+  "author": "OchreFox",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OchreFox/league-custom-ddragon/issues"
+  },
+  "homepage": "https://github.com/OchreFox/league-custom-ddragon#readme",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.1",
+    "axios": "^0.26.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.33.4",
+    "jest": "^27.5.1"
+  }
+}
