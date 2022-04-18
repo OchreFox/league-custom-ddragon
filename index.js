@@ -42,7 +42,7 @@ const mergeItems = async (endpoints, latestVersion) => {
         // Only copy the tier, nicknames, icon, requiredChampion, and iconOverlay from the original item to a new object
         const requiredKeysMeraki = [
           "tier",
-          "nickname",
+          "nicknames",
           "icon",
           "requiredChampion",
           "iconOverlay",

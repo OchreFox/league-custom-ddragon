@@ -1,5 +1,7 @@
 # League Custom DDragon
 
+[![](https://data.jsdelivr.com/v1/package/gh/OchreFox/league-custom-ddragon/badge)](https://www.jsdelivr.com/package/gh/OchreFox/league-custom-ddragon)
+
 This GitHub action creates custom versions of DDragon JSON files for other league-related projects
 
 ## Inputs
@@ -15,6 +17,9 @@ Currently, this action only creates a custom `items.json` file from a combinatio
 ```
 
 ## Outputs
+
+Releases the items.json file to be served.
+You can check the CDN version of the latest file here: <https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/items.json>
 
 ### `items.json`
 
