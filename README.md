@@ -19,3 +19,5 @@ Currently, this action only creates a custom `items.json` file from a combinatio
 ### `items.json`
 
 The custom-merged JSON file to serve and to be consumed by other league-related repositories.
+
+test
