@@ -6,10 +6,10 @@ name: Build items.json
 # or API.
 on:
   schedule:
-  - cron: "0 2 * * 1-5"
+    - cron: "0 2 * * 1-5"
   pull_request:
     branches:
-    - main
+      - main
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Items
     steps:
+      - uses: actions/checkout@v3
       - name: Run GitHub Action on repo
         id: items
         uses: OchreFox/league-custom-ddragon@main
