@@ -21,6 +21,24 @@ jobs:
     name: Build Items
     steps:
       - uses: actions/checkout@v3
-      - name: Run GitHub Action on repo
+      - name: Built items.json
         id: items
         uses: OchreFox/league-custom-ddragon@main
+      - name: Commit files
+        id: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions"
+          git add --all
+          if [-z "$(git status --porcelain)"]; then
+             echo "::set-output name=push::false"
+          else
+             git commit -m "Created merged items.json" -a
+             echo "::set-output name=push::true"
+          fi
+        shell: bash
+      - name: Push changes
+        if: steps.commit.outputs.push == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
