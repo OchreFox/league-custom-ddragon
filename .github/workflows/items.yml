@@ -6,7 +6,7 @@ name: Build items.json
 # or API.
 on:
   schedule:
-    - cron: "0 2 * * 1-5"
+    - cron: "0 5 * * 3"
   pull_request:
     branches:
       - main
