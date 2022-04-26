@@ -41,23 +41,30 @@ const mergeItems = async (endpoints, latestVersion) => {
       case "MerakiAnalytics":
         // Only copy the tier, nicknames, icon, requiredChampion, and iconOverlay from the original item to a new object
         const requiredKeysMeraki = [
-          "tier",
-          "nicknames",
           "icon",
-          "requiredChampion",
           "iconOverlay",
+          "nicknames",
+          "requiredChampion",
+          "simpleDescription",
+          "tier",
         ];
         Object.entries(endpoint.data).map((item) => {
           const key = item[0];
           const values = item[1];
           let filteredItem = _.pick(values, requiredKeysMeraki);
-          // Append the filteredItem to the mergedItems in the corresponding key
-          mergedItems[key] = { ...mergedItems[key], ...filteredItem };
+          // Get an array of classes from nested object property
+          let classes = _.get(values, "shop.tags") || [];
+          // Append the filteredItem and the classes to the mergedItems in the corresponding key
+          mergedItems[key] = {
+            ...mergedItems[key],
+            ...filteredItem,
+            classes: classes,
+          };
         });
         break;
       case "CommunityDragon":
         // The required keys are: categories, inStore
-        let requiredKeysCD = ["categories", "inStore"];
+        let requiredKeysCD = ["categories", "inStore", "maxStacks"];
         endpoint.data.map((item) => {
           const key = item.id;
           let filteredItem = _.pick(item, requiredKeysCD);
