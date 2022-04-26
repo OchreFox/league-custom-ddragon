@@ -18,10 +18,25 @@ on:
 jobs:
   itemsBuild:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     name: Build Items
     steps:
       - uses: actions/checkout@v3
-      - name: Built items.json
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - name: Install dependencies with a clean slate
+        run: npm ci
+      - name: Run tests
+        run: npm run test
+      - name: Build dist
+      - run: npm run build --if-present
+      - name: Build items.json
         id: items
         uses: OchreFox/league-custom-ddragon@main
       - name: Commit files
@@ -33,16 +48,12 @@ jobs:
           if [-z "$(git status --porcelain)"]; then
              echo "::set-output name=push::false"
           else
-             git commit -m "Created merged items.json" -a
+             git commit -m "Updated items.json" -a
              echo "::set-output name=push::true"
           fi
         shell: bash
-      - name: Push changes
+      - name: Push changes to master
         if: steps.commit.outputs.push == 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install modules
-        run: npm install
-      - name: Run tests
-        run: npm run test
