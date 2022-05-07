@@ -154,7 +154,7 @@ const mergeItems = async (endpoints, latestVersion) => {
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
   // Sanitize path to avoid directory traversal
   latestVersionPath = path.normalize(latestVersionPath);
-
+  // deepcode ignore PT: Wont fix this right away
   fs.writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
   // Also save a copy in the latest folder
   fs.writeFileSync(`./data/latest/items.json`, JSON.stringify(mergedItems));
