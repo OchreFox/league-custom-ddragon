@@ -1,6 +1,6 @@
 # League Custom DDragon
 
-[![](https://data.jsdelivr.com/v1/package/gh/OchreFox/league-custom-ddragon/badge)](https://www.jsdelivr.com/package/gh/OchreFox/league-custom-ddragon)
+[![jsDelivr](https://data.jsdelivr.com/v1/package/gh/OchreFox/league-custom-ddragon/badge)](https://www.jsdelivr.com/package/gh/OchreFox/league-custom-ddragon) [![Build items.json](https://github.com/OchreFox/league-custom-ddragon/actions/workflows/items.yml/badge.svg)](https://github.com/OchreFox/league-custom-ddragon/actions/workflows/items.yml) ![latest](https://img.shields.io/badge/dynamic/json?style=flat-square&logo=riotgames&color=informational&label=DDragon%20latest%20version&query=%24%5B0%5D&url=https%3A%2F%2Fddragon.leagueoflegends.com%2Fapi%2Fversions.json)
 
 This GitHub action creates custom versions of DDragon JSON files for other league-related projects
 
