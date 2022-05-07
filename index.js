@@ -153,7 +153,7 @@ const mergeItems = async (endpoints, latestVersion) => {
   let rootPath = "./data/";
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
   // Sanitize path to avoid directory traversal
-  latestVersionPath = latestVersionPath.replace(/\//g, "\\\\");
+  latestVersionPath = path.normalize(latestVersionPath);
 
   fs.writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
   // Also save a copy in the latest folder
