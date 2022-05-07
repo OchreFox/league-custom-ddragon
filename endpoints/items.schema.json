@@ -1,0 +1,301 @@
+{
+  "$id": "schemaA",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/ItemsValue"
+  },
+  "definitions": {
+    "ItemsValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "stats": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "maps": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "into": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mythic": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gold": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Gold"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "icon": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "format": "uri",
+              "qt-uri-protocols": ["https"],
+              "qt-uri-extensions": [".png"]
+            }
+          ]
+        },
+        "iconOverlay": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nicknames": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requiredChampion": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RequiredChampion"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "simpleDescription": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "tier": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "classes": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Class"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Category"
+          }
+        },
+        "inStore": {
+          "type": "boolean"
+        },
+        "maxStacks": {
+          "type": "integer"
+        },
+        "from": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "categories",
+        "classes",
+        "description",
+        "from",
+        "gold",
+        "icon",
+        "iconOverlay",
+        "id",
+        "inStore",
+        "into",
+        "maps",
+        "maxStacks",
+        "mythic",
+        "name",
+        "nicknames",
+        "requiredChampion",
+        "simpleDescription",
+        "stats",
+        "tier",
+        "type"
+      ],
+      "title": "ItemsValue"
+    },
+    "Gold": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "type": "integer"
+        },
+        "purchasable": {
+          "type": "boolean"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "sell": {
+          "type": "integer"
+        }
+      },
+      "required": ["base", "purchasable", "sell", "total"],
+      "title": "Gold"
+    },
+    "Category": {
+      "type": "string",
+      "enum": [
+        "Boots",
+        "MagicPenetration",
+        "CooldownReduction",
+        "ManaRegen",
+        "HealthRegen",
+        "LifeSteal",
+        "SpellVamp",
+        "Jungle",
+        "OnHit",
+        "Armor",
+        "Consumable",
+        "Lane",
+        "AttackSpeed",
+        "Active",
+        "Health",
+        "Stealth",
+        "Vision",
+        "SpellDamage",
+        "NonbootsMovement",
+        "AbilityHaste",
+        "Tenacity",
+        "Damage",
+        "SpellBlock",
+        "Mana",
+        "CriticalStrike",
+        "ArmorPenetration",
+        "Aura",
+        "Slow",
+        "Trinket",
+        "GoldPer"
+      ],
+      "title": "Category"
+    },
+    "Class": {
+      "type": "string",
+      "enum": ["MAGE", "SUPPORT", "TANK", "FIGHTER", "MARKSMAN", "ASSASSIN"],
+      "title": "Class"
+    },
+    "RequiredChampion": {
+      "type": "string",
+      "enum": ["", "FiddleSticks", "Kalista", "Gangplank"],
+      "title": "RequiredChampion"
+    }
+  }
+}

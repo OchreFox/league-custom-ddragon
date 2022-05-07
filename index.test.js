@@ -1,6 +1,11 @@
 const fs = require("fs");
 const axios = require("axios");
 const getLatestVersion = require("./index");
+const { matchersWithOptions } = require("jest-json-schema");
+const schemaItems = require("./endpoints/items.schema.json");
+const items = require("./data/latest/items.json");
+
+expect.extend(matchersWithOptions());
 
 // Test to check that the latest version exists in Blitz API
 test("Latest version exists in Blitz API", async () => {
@@ -19,9 +24,8 @@ test("Latest version exists in Blitz API", async () => {
   // Get endpoint where endpoint.name === "Blitz"
   const blitzEndpoint = endpoints.find((endpoint) => endpoint.name === "Blitz");
   // Fetch item.json from Blitz API
-  const itemEndpoints = await axios
+  await axios
     .get(blitzEndpoint.url)
-    // Check that the response is 200
     .then((response) => {
       expect(response.status).toBe(200);
       return response.data;
@@ -30,12 +34,20 @@ test("Latest version exists in Blitz API", async () => {
     .then((data) => {
       expect(data).toHaveProperty("version", latestVersion);
       return data;
+    })
+    .catch((err) => {
+      console.log(err);
     });
 });
 
 // Test to expect a creation of a latest version directory and a items.json file in it
-test("Verifying items.json file creation", async () => {
+test("Latest items.json file is created in folders", async () => {
   const latestVersion = await getLatestVersion();
   expect(fs.existsSync(`./data/${latestVersion}/items.json`)).toBe(true);
   expect(fs.existsSync(`./data/latest/items.json`)).toBe(true);
+});
+
+// Test to validate the final schema of the items.json file
+test("Latest items.json file has valid schema", () => {
+  expect(items).toMatchSchema(schemaItems);
 });
