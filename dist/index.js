@@ -144,7 +144,6 @@ const mergeItems = async (endpoints, latestVersion) => {
     "simpleDescription",
     "stats",
     "tier",
-    "type",
   ];
   var defaultValues = _(requiredKeys)
     .mapKeys()
