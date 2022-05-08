@@ -35,8 +35,9 @@ jobs:
       - name: Build dist
         run: npm run build --if-present
       - name: Build items.json
-        id: items
-        uses: OchreFox/league-custom-ddragon@main
+        # id: items
+        # uses: OchreFox/league-custom-ddragon@main
+        run: node dist/index.js
       - name: Run tests
         run: npm run test
       - name: Commit files
