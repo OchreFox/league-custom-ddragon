@@ -99,6 +99,18 @@
             }
           ]
         },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Category"
+          }
+        },
+        "inStore": {
+          "type": "boolean"
+        },
+        "maxStacks": {
+          "type": "integer"
+        },
         "icon": {
           "anyOf": [
             {
@@ -178,18 +190,6 @@
             }
           ]
         },
-        "categories": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Category"
-          }
-        },
-        "inStore": {
-          "type": "boolean"
-        },
-        "maxStacks": {
-          "type": "integer"
-        },
         "from": {
           "anyOf": [
             {
@@ -202,9 +202,6 @@
               "type": "null"
             }
           ]
-        },
-        "type": {
-          "type": "null"
         }
       },
       "required": [
@@ -226,8 +223,7 @@
         "requiredChampion",
         "simpleDescription",
         "stats",
-        "tier",
-        "type"
+        "tier"
       ],
       "title": "ItemsValue"
     },
