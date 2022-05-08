@@ -48,14 +48,6 @@ const mergeItems = async (endpoints, latestVersion) => {
     "simpleDescription",
     "tier",
   ];
-  var defaultMeraki = {
-    icon: "",
-    iconOverlay: false,
-    nicknames: [],
-    requiredChampion: "",
-    simpleDescription: "",
-    tier: 0,
-  };
   const admittedClasses = [
     "MAGE",
     "SUPPORT",
@@ -92,10 +84,8 @@ const mergeItems = async (endpoints, latestVersion) => {
         Object.entries(endpoint.data).forEach((item) => {
           const key = item[0];
           const values = item[1];
-          let filteredItem = _(values)
-            .pick(requiredKeysMeraki)
-            .defaults(defaultMeraki)
-            .value();
+          let filteredItem = _.pick(values, requiredKeysMeraki);
+
           // Get an array of classes from nested object property
           let classes = _.get(values, "shop.tags");
           if (classes.length > 0) {
