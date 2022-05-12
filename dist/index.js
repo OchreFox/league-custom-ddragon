@@ -29999,6 +29999,7 @@ const mergeItems = async (endpoints, latestVersion) => {
     "nicknames",
     "requiredChampion",
     "simpleDescription",
+    "tier",
   ];
   const admittedClasses = [
     "MAGE",
@@ -30027,8 +30028,7 @@ const mergeItems = async (endpoints, latestVersion) => {
             ) {
               data[key][key2] = value2.map(Number);
             } else if (key2 === "depth") {
-              // Rename key2 from depth to tier
-              data[key]["tier"] = value2;
+              // Delete the depth key
               delete data[key]["depth"];
             }
           });
