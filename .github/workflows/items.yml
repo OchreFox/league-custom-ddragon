@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Build items.json
+name: Build custom DDragon JSON files
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -34,7 +34,7 @@ jobs:
         run: npm ci
       - name: Build dist
         run: npm run build --if-present
-      - name: Build items.json
+      - name: Build custom json files
         # id: items
         # uses: OchreFox/league-custom-ddragon@main
         run: node dist/index.js
