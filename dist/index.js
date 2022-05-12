@@ -1,207 +1,6 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 2932:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const axios = __nccwpck_require__(6545);
-const path = __nccwpck_require__(1017);
-const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
-var _ = __nccwpck_require__(250);
-const fs = __nccwpck_require__(7147);
-
-// Function to get the latest version of DDragon from https://ddragon.leagueoflegends.com/api/versions.json
-// Get the first element from the array of the versions.json file
-// Return the latest version number
-const getLatestVersion = async () => {
-  const response = await axios.get(
-    "https://ddragon.leagueoflegends.com/api/versions.json"
-  );
-  let latestVersion = response.data[0];
-  // Sanitize latest version, only accept numbers and dots
-  latestVersion = latestVersion.replace(/[^0-9.]/g, "");
-  return latestVersion;
-};
-
-// Function to merge json data into a single one
-// Accepts an array of endpoint strings to fetch the items.json files
-// Returns a merged items.json file
-const mergeItems = async (endpoints, latestVersion) => {
-  // Create a new array to store the items.json files
-  let itemEndpoints = [];
-  let itemPromises = [];
-  endpoints.forEach((endpoint) => {
-    let promise = axios.get(endpoint.url).then((response) => {
-      itemEndpoints.push({ name: endpoint.name, data: response.data });
-    });
-    itemPromises.push(promise);
-  });
-  await Promise.all(itemPromises);
-
-  // Meraki keys
-  const requiredKeysMeraki = [
-    "icon",
-    "iconOverlay",
-    "nicknames",
-    "requiredChampion",
-    "simpleDescription",
-  ];
-  const admittedClasses = [
-    "MAGE",
-    "SUPPORT",
-    "TANK",
-    "FIGHTER",
-    "MARKSMAN",
-    "ASSASSIN",
-  ];
-
-  let mergedItems = {};
-  itemEndpoints.forEach((endpoint) => {
-    switch (endpoint.name) {
-      case "Blitz":
-        let data = endpoint.data.data;
-        // Parse numbers
-        Object.entries(data).forEach((entry) => {
-          const [key, value] = entry;
-          Object.entries(value).forEach((item) => {
-            const [key2, value2] = item;
-            if (key2 === "id") {
-              data[key][key2] = parseInt(value2);
-            } else if (
-              (key2 === "maps" || key2 === "from" || key2 === "into") &&
-              value2 !== null
-            ) {
-              data[key][key2] = value2.map(Number);
-            } else if (key2 === "depth") {
-              // Rename key2 from depth to tier
-              data[key]["tier"] = value2;
-              delete data[key]["depth"];
-            }
-          });
-        });
-
-        Object.assign(mergedItems, data);
-        break;
-      case "MerakiAnalytics":
-        Object.entries(endpoint.data).forEach((item) => {
-          const key = item[0];
-          const values = item[1];
-          let filteredItem = _.pick(values, requiredKeysMeraki);
-
-          // Get an array of classes from nested object property
-          let classes = _.get(values, "shop.tags");
-          if (classes.length > 0) {
-            classes = _.filter(classes, (className) =>
-              admittedClasses.includes(className)
-            );
-          }
-          // Append the filteredItem and the classes to the mergedItems in the corresponding key
-          mergedItems[key] = {
-            ...mergedItems[key],
-            ...filteredItem,
-            classes: classes,
-          };
-        });
-        break;
-      case "CommunityDragon":
-        let requiredKeysCD = ["categories", "inStore", "maxStacks"];
-        endpoint.data.forEach((item) => {
-          const key = item.id;
-          let filteredItem = _.pick(item, requiredKeysCD);
-          // Append the filteredItem to the mergedItems in the corresponding key
-          mergedItems[key] = { ...mergedItems[key], ...filteredItem };
-        });
-        break;
-    }
-  });
-
-  // Validate keys from mergedItems
-  const requiredKeys = [
-    "categories",
-    "classes",
-    "description",
-    "from",
-    "gold",
-    "icon",
-    "iconOverlay",
-    "id",
-    "inStore",
-    "into",
-    "maps",
-    "maxStacks",
-    "mythic",
-    "name",
-    "nicknames",
-    "requiredChampion",
-    "simpleDescription",
-    "stats",
-    "tier",
-  ];
-  var defaultValues = _(requiredKeys)
-    .mapKeys()
-    .mapValues(() => null)
-    .value();
-  // Merge the default values with every item in mergedItems
-  mergedItems = _.mapValues(mergedItems, (item) => {
-    return _.defaults(item, defaultValues);
-  });
-
-  // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
-  let rootPath = "./data/";
-  let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
-  // Sanitize path to avoid directory traversal
-  latestVersionPath = path.normalize(latestVersionPath);
-  // deepcode ignore PT: Wont fix this right away
-  fs.writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
-  // Also save a copy in the latest folder
-  fs.writeFileSync(`./data/latest/items.json`, JSON.stringify(mergedItems));
-};
-
-// Get the items.json file from the different endpoints specified in items.json
-// Return the custom merged items.json file
-const getItems = async () => {
-  // Read the items.json configuration file
-  const itemsConfig = JSON.parse(fs.readFileSync("./endpoints/items.json"));
-  // Fetch the latest version of DDragon
-  const latestVersion = await getLatestVersion();
-  let endpoints = [];
-  // Fetch the items.json from the itemsConfig
-  itemsConfig.forEach((endpoint) => {
-    console.log("Fetching items.json from " + endpoint.name);
-    const url = `${endpoint.baseUrl}${
-      endpoint.needsLatest ? latestVersion : ""
-    }${endpoint.resource}`;
-    endpoints.push({ name: endpoint.name, url: url });
-    console.log(endpoint.name + "items URL: " + url);
-  });
-  // Create a folder in /data if it doesn't exist for the latest version
-  if (!fs.existsSync(`./data/${latestVersion}`)) {
-    fs.mkdirSync(`./data/${latestVersion}`);
-  }
-  // Create the folder latest in /data if it doesn't exist
-  if (!fs.existsSync(`./data/latest`)) {
-    fs.mkdirSync(`./data/latest`);
-  }
-  await mergeItems(endpoints, latestVersion);
-};
-
-const main = async () => {
-  try {
-    await getItems();
-    core.info("Successfully fetched items.json");
-  } catch (error) {
-    core.setFailed(error.message);
-  }
-};
-
-main();
-
-module.exports = getLatestVersion;
-
-
-/***/ }),
-
 /***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -29976,6 +29775,384 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 5141:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const core = __nccwpck_require__(2186);
+const fs = __nccwpck_require__(7147);
+const axios = __nccwpck_require__(6545);
+var _ = __nccwpck_require__(250);
+const { getLatestVersion } = __nccwpck_require__(5957);
+
+const mergeChampions = async (endpoints, latestVersion) => {
+  const queryString = JSON.stringify({
+    query: `query ChampionsInfo{
+              info: queryChampionsV1Contents(top:0){
+                  flatData{
+                      name
+                      slug
+                      antiDive
+                      burst
+                      control
+                      damage
+                      damageType
+                      divePotential
+                      engage
+                      gankDenial
+                      gankReliability
+                      gankTurnAround
+                      kite
+                      mobility
+                      pick
+                      poke
+                      preControl
+                      preDamage
+                      preMobility
+                      preToughness
+                      postControl
+                      postDamage
+                      postMobility
+                      postToughness
+                      skirmish
+                      split
+                      sustained
+                      tags
+                      toughness
+                      utility
+                      waveclear
+                      powerSpikes{
+                          early
+                          mid
+                          late
+                      }
+                      key: riotId
+                      riotSlug
+                      customDifficulty {
+                          flatData {
+                              slug
+                              name
+                              color
+                              level
+                          }
+                      }
+                  }
+              }
+          }`,
+    variables: {},
+  });
+  var mobalyticsConfig = {
+    method: "post",
+    url: "https://app.mobalytics.gg/api/league/gql/static/v1",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: queryString,
+  };
+  let championEndpoints = [];
+  let championPromises = [];
+  let mobalyticsData = [];
+  let mergedChampionData = {};
+
+  // Fetch the champions.json from the endpoints
+  endpoints.forEach((endpoint) => {
+    let promise = axios.get(endpoint.url).then((response) => {
+      championEndpoints.push({ name: endpoint.name, data: response.data });
+    });
+    championPromises.push(promise);
+  });
+
+  await Promise.all(championPromises);
+  championPromises = [];
+
+  // Get data from Mobalytics GraphQL API
+  let mobalyticsPromise = axios(mobalyticsConfig)
+    .then(function (response) {
+      mobalyticsData = _.chain(response.data.data.info)
+        .flatMap(({ flatData }) => flatData)
+        .keyBy("riotSlug")
+        .value();
+
+      console.log("Mobalytics data fetched");
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+
+  championPromises.push(mobalyticsPromise);
+  await Promise.all(championPromises);
+
+  // Get data from endpoints
+  championEndpoints.forEach((endpoint) => {
+    if (endpoint.name === "MerakiAnalytics") {
+      let data = endpoint.data;
+      Object.assign(mergedChampionData, data);
+    }
+  });
+
+  // Merge mobalytics data with mergedChampionData
+  mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
+
+  // Write the merged champions.json file
+  // deepcode ignore PT: Wont fix this right away
+  fs.writeFileSync(
+    `data/${latestVersion}/champions.json`,
+    JSON.stringify(mergedChampionData)
+  );
+  fs.writeFileSync(
+    `data/latest/champions.json`,
+    JSON.stringify(mergedChampionData)
+  );
+};
+
+// Get the champions.json file from the different endpoints specified in champions.json
+// Return the custom merged champions.json file
+const getChampions = async () => {
+  // Read the champions.json configuration file
+  const championsConfig = JSON.parse(
+    fs.readFileSync("endpoints/champions.json")
+  );
+  const latestVersion = await getLatestVersion();
+  let endpoints = [];
+  // Create an endpoints array from the configuration file
+  championsConfig.forEach((endpoint) => {
+    console.log("Fetching champions.json from " + endpoint.name);
+    const url = `${endpoint.baseUrl}${
+      endpoint.needsLatest ? latestVersion : ""
+    }${endpoint.resource}`;
+    endpoints.push({ name: endpoint.name, url: url });
+    console.log(endpoint.name + " champions URL: " + url);
+  });
+  // Create a folder in /data if it doesn't exist for the latest version
+  if (!fs.existsSync(`data/${latestVersion}`)) {
+    fs.mkdirSync(`data/${latestVersion}`);
+  }
+  // Create the folder latest in /data if it doesn't exist
+  if (!fs.existsSync(`data/latest`)) {
+    fs.mkdirSync(`data/latest`);
+  }
+  await mergeChampions(endpoints, latestVersion);
+};
+
+const main = async () => {
+  try {
+    await getChampions();
+    core.info("Successfully merged champions.json");
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+};
+
+exports.getChampions = getChampions;
+
+
+/***/ }),
+
+/***/ 5957:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const axios = __nccwpck_require__(6545);
+
+/**
+ * Gets the latest version of DDragon from https://ddragon.leagueoflegends.com/api/versions.json
+ * @returns The latest version of the game.
+ */
+const getLatestVersion = async () => {
+  const response = await axios.get(
+    "https://ddragon.leagueoflegends.com/api/versions.json"
+  );
+  let latestVersion = response.data[0];
+  // Sanitize latest version, only accept numbers and dots
+  latestVersion = latestVersion.replace(/[^0-9.]/g, "");
+  return latestVersion;
+};
+exports.getLatestVersion = getLatestVersion;
+
+
+/***/ }),
+
+/***/ 9694:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+const axios = __nccwpck_require__(6545);
+const path = __nccwpck_require__(1017);
+const core = __nccwpck_require__(2186);
+const github = __nccwpck_require__(5438);
+var _ = __nccwpck_require__(250);
+const fs = __nccwpck_require__(7147);
+const { getLatestVersion } = __nccwpck_require__(5957);
+
+const mergeItems = async (endpoints, latestVersion) => {
+  // Create a new array to store the items.json files
+  let itemEndpoints = [];
+  let itemPromises = [];
+  endpoints.forEach((endpoint) => {
+    let promise = axios.get(endpoint.url).then((response) => {
+      itemEndpoints.push({ name: endpoint.name, data: response.data });
+    });
+    itemPromises.push(promise);
+  });
+  await Promise.all(itemPromises);
+
+  const requiredKeysMeraki = [
+    "icon",
+    "iconOverlay",
+    "nicknames",
+    "requiredChampion",
+    "simpleDescription",
+  ];
+  const admittedClasses = [
+    "MAGE",
+    "SUPPORT",
+    "TANK",
+    "FIGHTER",
+    "MARKSMAN",
+    "ASSASSIN",
+  ];
+
+  let mergedItems = {};
+  itemEndpoints.forEach((endpoint) => {
+    switch (endpoint.name) {
+      case "Blitz":
+        let data = endpoint.data.data;
+        // Parse numbers
+        Object.entries(data).forEach((entry) => {
+          const [key, value] = entry;
+          Object.entries(value).forEach((item) => {
+            const [key2, value2] = item;
+            if (key2 === "id") {
+              data[key][key2] = parseInt(value2);
+            } else if (
+              (key2 === "maps" || key2 === "from" || key2 === "into") &&
+              value2 !== null
+            ) {
+              data[key][key2] = value2.map(Number);
+            } else if (key2 === "depth") {
+              // Rename key2 from depth to tier
+              data[key]["tier"] = value2;
+              delete data[key]["depth"];
+            }
+          });
+        });
+
+        Object.assign(mergedItems, data);
+        break;
+      case "MerakiAnalytics":
+        Object.entries(endpoint.data).forEach((item) => {
+          const key = item[0];
+          const values = item[1];
+          let filteredItem = _.pick(values, requiredKeysMeraki);
+
+          // Get an array of classes from nested object property
+          let classes = _.get(values, "shop.tags");
+          if (classes.length > 0) {
+            classes = _.filter(classes, (className) =>
+              admittedClasses.includes(className)
+            );
+          }
+          // Append the filteredItem and the classes to the mergedItems in the corresponding key
+          mergedItems[key] = {
+            ...mergedItems[key],
+            ...filteredItem,
+            classes: classes,
+          };
+        });
+        break;
+      case "CommunityDragon":
+        let requiredKeysCD = ["categories", "inStore", "maxStacks"];
+        endpoint.data.forEach((item) => {
+          const key = item.id;
+          let filteredItem = _.pick(item, requiredKeysCD);
+          // Append the filteredItem to the mergedItems in the corresponding key
+          mergedItems[key] = { ...mergedItems[key], ...filteredItem };
+        });
+        break;
+    }
+  });
+
+  // Validate keys from mergedItems
+  const requiredKeys = [
+    "categories",
+    "classes",
+    "description",
+    "from",
+    "gold",
+    "icon",
+    "iconOverlay",
+    "id",
+    "inStore",
+    "into",
+    "maps",
+    "maxStacks",
+    "mythic",
+    "name",
+    "nicknames",
+    "requiredChampion",
+    "simpleDescription",
+    "stats",
+    "tier",
+  ];
+  var defaultValues = _(requiredKeys)
+    .mapKeys()
+    .mapValues(() => null)
+    .value();
+  // Merge the default values with every item in mergedItems
+  mergedItems = _.mapValues(mergedItems, (item) => {
+    return _.defaults(item, defaultValues);
+  });
+
+  // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
+  let rootPath = "data/";
+  let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
+  // Sanitize path to avoid directory traversal
+  latestVersionPath = path.normalize(latestVersionPath);
+  // deepcode ignore PT: Wont fix this right away
+  fs.writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
+  // Also save a copy in the latest folder
+  fs.writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
+};
+
+// Get the items.json file from the different endpoints specified in items.json
+// Return the custom merged items.json file
+const getItems = async () => {
+  // Read the items.json configuration file
+  const itemsConfig = JSON.parse(fs.readFileSync("endpoints/items.json"));
+  // Fetch the latest version of DDragon
+  const latestVersion = await getLatestVersion();
+  let endpoints = [];
+  // Fetch the items.json from the itemsConfig
+  itemsConfig.forEach((endpoint) => {
+    console.log("Fetching items.json from " + endpoint.name);
+    const url = `${endpoint.baseUrl}${
+      endpoint.needsLatest ? latestVersion : ""
+    }${endpoint.resource}`;
+    endpoints.push({ name: endpoint.name, url: url });
+    console.log(endpoint.name + " items URL: " + url);
+  });
+  // Create a folder in /data if it doesn't exist for the latest version
+  if (!fs.existsSync(`data/${latestVersion}`)) {
+    fs.mkdirSync(`data/${latestVersion}`);
+  }
+  // Create the folder latest in /data if it doesn't exist
+  if (!fs.existsSync(`data/latest`)) {
+    fs.mkdirSync(`data/latest`);
+  }
+  await mergeItems(endpoints, latestVersion);
+};
+
+const main = async () => {
+  try {
+    await getItems();
+    core.info("Successfully merged items.json");
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+};
+
+exports.getItems = getItems;
+
+
+/***/ }),
+
 /***/ 2877:
 /***/ ((module) => {
 
@@ -30162,13 +30339,31 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(2932);
-/******/ 	module.exports = __webpack_exports__;
-/******/ 	
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+const core = __nccwpck_require__(2186);
+const github = __nccwpck_require__(5438);
+const { getItems } = __nccwpck_require__(9694);
+const { getChampions } = __nccwpck_require__(5141);
+
+const main = async () => {
+  try {
+    await getItems();
+    core.info("Successfully merged items.json\n");
+    await getChampions();
+    core.info("Successfully merged champions.json\n");
+    core.info("Successfully generated custom files.");
+  } catch (error) {
+    core.setFailed(error.message);
+  }
+};
+
+main();
+
+})();
+
+module.exports = __webpack_exports__;
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
