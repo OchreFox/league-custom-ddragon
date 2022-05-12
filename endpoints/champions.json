@@ -1,0 +1,8 @@
+[
+  {
+    "name": "MerakiAnalytics",
+    "baseUrl": "http://cdn.merakianalytics.com/riot/lol/resources/latest",
+    "resource": "/en-US/champions.json",
+    "needsLatest": false
+  }
+]

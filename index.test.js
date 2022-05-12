@@ -1,6 +1,6 @@
 const fs = require("fs");
 const axios = require("axios");
-const getLatestVersion = require("./index");
+const { getLatestVersion } = require("./src/getLatestVersion");
 const { matchersWithOptions } = require("jest-json-schema");
 const schemaItems = require("./endpoints/items.schema.json");
 const items = require("./data/latest/items.json");
@@ -50,4 +50,11 @@ test("Latest items.json file is created in folders", async () => {
 // Test to validate the final schema of the items.json file
 test("Latest items.json file has valid schema", () => {
   expect(items).toMatchSchema(schemaItems);
+});
+
+// Test to expect a creation of a latest champions.json file in the latest version directory
+test("Latest champions.json file is created in folders", async () => {
+  const latestVersion = await getLatestVersion();
+  expect(fs.existsSync(`./data/${latestVersion}/champions.json`)).toBe(true);
+  expect(fs.existsSync(`./data/latest/champions.json`)).toBe(true);
 });

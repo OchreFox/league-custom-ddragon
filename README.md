@@ -6,21 +6,27 @@ This GitHub action creates custom versions of DDragon JSON files for other leagu
 
 ## Inputs
 
-Currently, this action only creates a custom `items.json` file from a combination of different endpoints:
+This action generates custom `items.json` and `champions.json` files from a combination of different endpoints:
 
 ```json
 {
     "Blitz": "https://blitz-cdn-plain.blitz.gg/blitz/ddragon/:latest/data/en_US/items.json",
     "Meraki Analytics": "https://cdn.merakianalytics.com/riot/lol/resources/latest/en-US/items.json",
-    "CommunityDragon": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items.json"
+    "CommunityDragon": "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
+    "Mobalytics (GraphQL)": "https://app.mobalytics.gg/api/league/gql/static/v1"
 }
 ```
 
 ## Outputs
 
-Releases the items.json file to be served.
+Releases the custom-merged JSON files to serve and to be consumed by other league-related repositories.
+
 You can check the CDN version of the latest file here: <https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/items.json>
 
 ### `items.json`
 
-The custom-merged JSON file to serve and to be consumed by other league-related repositories.
+TBD
+
+### `champions.json`
+
+TBD
