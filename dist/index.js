@@ -29787,57 +29787,57 @@ const { getLatestVersion } = __nccwpck_require__(5957);
 const mergeChampions = async (endpoints, latestVersion) => {
   const queryString = JSON.stringify({
     query: `query ChampionsInfo{
-              info: queryChampionsV1Contents(top:0){
+      info: queryChampionsV1Contents(top:0){
+          flatData{
+              name
+              slug
+              antiDive
+              burst
+              control
+              damage
+              damageType
+              divePotential
+              engage
+              gankDenial
+              gankReliability
+              gankTurnAround
+              kite
+              mobility
+              pick
+              poke
+              preControl
+              preDamage
+              preMobility
+              preToughness
+              postControl
+              postDamage
+              postMobility
+              postToughness
+              skirmish
+              split
+              sustained
+              tags
+              toughness
+              utility
+              waveclear
+              powerSpikes{
+                  early
+                  mid
+                  late
+              }
+              key: riotId
+              riotSlug
+              difficultyLevel
+              difficulty{
                   flatData{
-                      name
                       slug
-                      antiDive
-                      burst
-                      control
-                      damage
-                      damageType
-                      divePotential
-                      engage
-                      gankDenial
-                      gankReliability
-                      gankTurnAround
-                      kite
-                      mobility
-                      pick
-                      poke
-                      preControl
-                      preDamage
-                      preMobility
-                      preToughness
-                      postControl
-                      postDamage
-                      postMobility
-                      postToughness
-                      skirmish
-                      split
-                      sustained
-                      tags
-                      toughness
-                      utility
-                      waveclear
-                      powerSpikes{
-                          early
-                          mid
-                          late
-                      }
-                      key: riotId
-                      riotSlug
-                      customDifficulty {
-                          flatData {
-                              slug
-                              name
-                              color
-                              level
-                          }
-                      }
+                      name
+                      level
                   }
               }
-          }`,
+          }
+      }
+  }`,
     variables: {},
   });
   var mobalyticsConfig = {
