@@ -29892,6 +29892,19 @@ const mergeChampions = async (endpoints, latestVersion) => {
   // Merge mobalytics data with mergedChampionData
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
 
+  // Create a lightweight champions.json version
+  let lightweightChampionData = {};
+  Object.assign(lightweightChampionData, mergedChampionData);
+  Object.keys(lightweightChampionData).map((key) => {
+    let champion = mergedChampionData[key];
+    // Delete unneeded keys
+    delete champion.abilities;
+    delete champion.skins;
+    delete champion.stats;
+    delete champion.key;
+    delete champion.riotSlug;
+  });
+
   // Write the merged champions.json file
   // deepcode ignore PT: Wont fix this right away
   fs.writeFileSync(
@@ -29901,6 +29914,15 @@ const mergeChampions = async (endpoints, latestVersion) => {
   fs.writeFileSync(
     `data/latest/champions.json`,
     JSON.stringify(mergedChampionData)
+  );
+  // deepcode ignore PT: Wont fix this right away
+  fs.writeFileSync(
+    `data/${latestVersion}/champions-summary.json`,
+    JSON.stringify(lightweightChampionData)
+  );
+  fs.writeFileSync(
+    `data/latest/champions-summary.json`,
+    JSON.stringify(lightweightChampionData)
   );
 };
 
