@@ -11,24 +11,10 @@
       "additionalProperties": false,
       "properties": {
         "id": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "integer"
         },
         "name": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            }
-          ]
+          "type": "string"
         },
         "description": {
           "anyOf": [
@@ -41,63 +27,64 @@
           ]
         },
         "stats": {
-          "anyOf": [
-            {
-              "type": "object",
-              "additionalProperties": {
-                "type": "number"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
         },
         "maps": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "into": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "mythic": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         },
         "gold": {
+          "$ref": "#/definitions/Gold"
+        },
+        "into": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "mythic": {
+          "type": "boolean"
+        },
+        "icon": {
+          "type": "string",
+          "qt-uri-protocols": ["https"],
+          "qt-uri-extensions": [".png"]
+        },
+        "iconOverlay": {
+          "type": "boolean"
+        },
+        "nicknames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredChampion": {
+          "$ref": "#/definitions/RequiredChampion"
+        },
+        "simpleDescription": {
           "anyOf": [
             {
-              "$ref": "#/definitions/Gold"
+              "type": "null"
             },
             {
-              "type": "null"
+              "type": "string"
             }
           ]
+        },
+        "tier": {
+          "type": "integer"
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Class"
+          }
         },
         "categories": {
           "type": "array",
@@ -111,97 +98,11 @@
         "maxStacks": {
           "type": "integer"
         },
-        "icon": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "type": "string",
-              "format": "uri",
-              "qt-uri-protocols": ["https"],
-              "qt-uri-extensions": [".png"]
-            }
-          ]
-        },
-        "iconOverlay": {
-          "anyOf": [
-            {
-              "type": "boolean"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "nicknames": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "requiredChampion": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/RequiredChampion"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "simpleDescription": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "type": "string"
-            }
-          ]
-        },
-        "tier": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "classes": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Class"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "from": {
-          "anyOf": [
-            {
-              "type": "array",
-              "items": {
-                "type": "integer"
-              }
-            },
-            {
-              "type": "null"
-            }
-          ]
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
         }
       },
       "required": [
@@ -262,24 +163,24 @@
         "Armor",
         "Consumable",
         "Lane",
-        "AttackSpeed",
         "Active",
-        "Health",
         "Stealth",
         "Vision",
-        "SpellDamage",
+        "Health",
         "NonbootsMovement",
-        "AbilityHaste",
         "Tenacity",
+        "SpellDamage",
         "Damage",
-        "SpellBlock",
-        "Mana",
-        "CriticalStrike",
-        "ArmorPenetration",
-        "Aura",
-        "Slow",
         "Trinket",
-        "GoldPer"
+        "GoldPer",
+        "AbilityHaste",
+        "Aura",
+        "CriticalStrike",
+        "AttackSpeed",
+        "Mana",
+        "SpellBlock",
+        "ArmorPenetration",
+        "Slow"
       ],
       "title": "Category"
     },
