@@ -112,17 +112,16 @@ const mergeChampions = async (endpoints, latestVersion) => {
   // Merge mobalytics data with mergedChampionData
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
 
-  // Create a lightweight champions.json version
-  let lightweightChampionData = {};
-  Object.assign(lightweightChampionData, mergedChampionData);
-  Object.keys(lightweightChampionData).map((key) => {
-    let champion = mergedChampionData[key];
-    // Delete unneeded keys
-    delete champion.abilities;
-    delete champion.skins;
-    delete champion.stats;
-    delete champion.key;
-    delete champion.riotSlug;
+  // Create a copy of the mergedChampionData
+  let lightweightChampionData = _.cloneDeep(mergedChampionData);
+
+  Object.keys(lightweightChampionData).forEach((key) => {
+    // Delete unneeded keys (abilities, skins, stats, key, slug)
+    delete lightweightChampionData[key].abilities;
+    delete lightweightChampionData[key].skins;
+    delete lightweightChampionData[key].stats;
+    delete lightweightChampionData[key].key;
+    delete lightweightChampionData[key].slug;
   });
 
   // Write the merged champions.json file
