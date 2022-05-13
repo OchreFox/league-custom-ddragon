@@ -30112,10 +30112,28 @@ const mergeItems = async (endpoints, latestVersion) => {
     "stats",
     "tier",
   ];
-  var defaultValues = _(requiredKeys)
-    .mapKeys()
-    .mapValues(() => null)
-    .value();
+  // Set default values for required keys
+  var defaultValues = {
+    categories: [],
+    classes: [],
+    description: null,
+    from: [],
+    gold: { base: 0, purchasable: false, total: 0, sell: 0 },
+    icon: "",
+    iconOverlay: false,
+    id: -1,
+    inStore: false,
+    into: [],
+    maps: [],
+    maxStacks: 0,
+    mythic: false,
+    name: "",
+    nicknames: [],
+    requiredChampion: "",
+    simpleDescription: "",
+    stats: {},
+    tier: 0,
+  };
   // Merge the default values with every item in mergedItems
   mergedItems = _.mapValues(mergedItems, (item) => {
     return _.defaults(item, defaultValues);
