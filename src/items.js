@@ -4,7 +4,124 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 var _ = require("lodash");
 const fs = require("fs");
+const createDOMPurify = require("dompurify");
+const { JSDOM } = require("jsdom");
 const { getLatestVersion } = require("./getLatestVersion");
+const { XMLParser, XMLBuilder, XMLValidator } = require("fast-xml-parser");
+
+// Function to convert a string to pascal case
+const toPascalCase = (str) => {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+};
+
+const sanitizeText = (item) => {
+  if (!item) return "";
+  const text = item.description;
+  if (!text) {
+    return;
+  }
+  const pascalCaseTags = [
+    "Active",
+    "Attention",
+    "FlavorText",
+    "Healing",
+    "KeywordStealth",
+    "MagicDamage",
+    "MainText",
+    "Passive",
+    "PhysicalDamage",
+    "RarityGeneric",
+    "RarityLegendary",
+    "RarityMythic",
+    "Rules",
+    "ScaleLevel",
+    "ScaleMana",
+    "Stats",
+    "Status",
+    "TrueDamage",
+  ];
+  // Sanitize text with dompurify
+  const window = new JSDOM("").window;
+  const DOMPurify = createDOMPurify(window);
+  let sanitizedText = DOMPurify.sanitize(text, {
+    ADD_TAGS: [
+      "active",
+      "attention",
+      "flavorText",
+      "healing",
+      "keywordStealth",
+      "magicDamage",
+      "mainText",
+      "passive",
+      "physicalDamage",
+      "rarityGeneric",
+      "rarityLegendary",
+      "rarityMythic",
+      "rules",
+      "scaleLevel",
+      "scaleMana",
+      "stats",
+      "status",
+      "trueDamage",
+    ],
+    FORBID_TAGS: ["br"],
+  });
+
+  // Replace all lowercase words inside the sanitizedText with the camelCaseTags version
+  pascalCaseTags.forEach((tag) => {
+    const lowercaseTag = tag.toLowerCase();
+    // Replace lowercase tag with tag
+    sanitizedText = _.replace(
+      sanitizedText,
+      new RegExp(lowercaseTag, "g"),
+      tag
+    );
+  });
+
+  // Parse with fast-xml-parser
+  const parser = new XMLParser({
+    preserveOrder: true,
+  });
+  const xml = parser.parse(sanitizedText);
+  // Remove stats from the xml object
+  if (xml.mainText?.stats) {
+    for (var key in xml.mainText.stats) {
+      delete xml.mainText.stats[key];
+    }
+  }
+  // Convert xml object to XML string
+  const builder = new XMLBuilder({
+    preserveOrder: true,
+  });
+  var xmlString = builder.build(xml);
+
+  // Add stats between <Stats> tag and </Stats> tag
+  const statsRegex = /<Stats>(.*?)<\/Stats>/g;
+  const statsMatch = xmlString.match(statsRegex);
+  if (statsMatch) {
+    const statsTag = statsMatch[0];
+    var statsString = "";
+
+    // Create the stats string with the stats of the item
+    if (item.stats) {
+      Object.entries(item.stats).forEach(([keyItem, value]) => {
+        Object.entries(value).forEach(([key2, value2]) => {
+          let statName = toPascalCase(key2) + toPascalCase(keyItem);
+          statsString += `<Stat name="${statName}">${value2}${
+            key2.includes("percent") ? "%" : ""
+          }</Stat>`;
+        });
+      });
+    }
+
+    const statText = `<Stats>${statsString}</Stats>`;
+    xmlString = _.replace(xmlString, statsTag, statText);
+  }
+  return xmlString;
+};
 
 const mergeItems = async (endpoints, latestVersion) => {
   // Create a new array to store the items.json files
@@ -25,6 +142,7 @@ const mergeItems = async (endpoints, latestVersion) => {
     "requiredChampion",
     "simpleDescription",
     "tier",
+    "stats",
   ];
   const admittedClasses = [
     "MAGE",
@@ -55,6 +173,9 @@ const mergeItems = async (endpoints, latestVersion) => {
             } else if (key2 === "depth") {
               // Delete the depth key
               delete data[key]["depth"];
+            } else if (key2 === "stats") {
+              // Delete stats from blitzEndpoint
+              delete data[key]["stats"];
             }
           });
         });
@@ -74,6 +195,20 @@ const mergeItems = async (endpoints, latestVersion) => {
               admittedClasses.includes(className)
             );
           }
+          // Remove empty keys from stats to reduce the size of the json file
+          let stats = _.get(values, "stats");
+          if (stats) {
+            Object.entries(stats).forEach((stat) => {
+              const [key2, value2] = stat;
+              Object.entries(value2).forEach((stat2) => {
+                const [key3, value3] = stat2;
+                if (value3 === 0) {
+                  delete values["stats"][key2][key3];
+                }
+              });
+            });
+          }
+
           // Append the filteredItem and the classes to the mergedItems in the corresponding key
           mergedItems[key] = {
             ...mergedItems[key],
@@ -141,6 +276,15 @@ const mergeItems = async (endpoints, latestVersion) => {
   // Merge the default values with every item in mergedItems
   mergedItems = _.mapValues(mergedItems, (item) => {
     return _.defaults(item, defaultValues);
+  });
+
+  // Sanitize item description for each item in mergedItems
+  Object.entries(mergedItems).forEach(([key, value]) => {
+    let description = value.description;
+    if (description) {
+      description = sanitizeText(value);
+      mergedItems[key].description = description;
+    }
   });
 
   // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
