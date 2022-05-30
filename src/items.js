@@ -9,12 +9,17 @@ const { JSDOM } = require("jsdom");
 const { getLatestVersion } = require("./getLatestVersion");
 const { XMLParser, XMLBuilder, XMLValidator } = require("fast-xml-parser");
 
-// Function to convert a string to pascal case
+// Function to convert a string from camel case or snake case to pascal case
 const toPascalCase = (str) => {
   return str
-    .split(" ")
+    .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join("");
+};
+
+// Function to convert a string from snake case to camel case
+const snakeToCamel = (str) => {
+  return str.replace(/(\_\w)/g, (m) => m[1].toUpperCase());
 };
 
 const sanitizeText = (item) => {
@@ -120,6 +125,50 @@ const sanitizeText = (item) => {
     const statText = `<Stats>${statsString}</Stats>`;
     xmlString = _.replace(xmlString, statsTag, statText);
   }
+
+  // Combine all two adjacent Active tags when the first one is "Active -"
+  // Example: <Active>Active -</Active><Active>Lorem ipsum</Active>
+  // Result:  <Active>Active - Lorem ipsum</Active>
+
+  const activeRegex = /<Active>(.*?)<\/Active>/g;
+  const activeMatch = xmlString.match(activeRegex);
+  var skipNext = false;
+  if (activeMatch) {
+    // Loop through each match
+    for (const match of activeMatch) {
+      // If skipNext is set to true, skip the next match
+      if (skipNext === true) {
+        skipNext = false;
+        // Delete the match from the xmlString
+        xmlString = _.replace(xmlString, match, "");
+        continue;
+      }
+      // Get the content of the match
+      const tagContent = match.replace(/<\/?Active>/g, "");
+      // Check if the content is "Active -"
+      if (tagContent === "Active -") {
+        // Replace the match with the "Active - " and the content of the next match
+        const nextTagContent = activeMatch[activeMatch.indexOf(match) + 1]
+          .replace(/<\/?Active>/g, "")
+          .trim();
+
+        xmlString = _.replace(
+          xmlString,
+          match,
+          `<Active>Active - ${nextTagContent}</Active>`
+        );
+        // Skip the next match
+        skipNext = true;
+      }
+    }
+  }
+
+  // Replace in xmlString:
+  // Add a whitespace (' ') before a less than character ('<') if the preceding character is a letter (a-z, A-Z) or a colon (':')
+
+  const lessThanRegex = /([a-zA-Z,:])</g;
+  xmlString = xmlString.replace(lessThanRegex, "$1 <");
+
   return xmlString;
 };
 
@@ -200,10 +249,22 @@ const mergeItems = async (endpoints, latestVersion) => {
           if (stats) {
             Object.entries(stats).forEach((stat) => {
               const [key2, value2] = stat;
+              // Convert key2 from snake case to camel case
+              const camelCaseKey2 = snakeToCamel(key2);
+              // Replace key2
+              if (key2 !== camelCaseKey2) {
+                Object.defineProperty(
+                  stats,
+                  camelCaseKey2,
+                  Object.getOwnPropertyDescriptor(stats, key2)
+                );
+                delete stats[key2];
+              }
+
               Object.entries(value2).forEach((stat2) => {
                 const [key3, value3] = stat2;
                 if (value3 === 0) {
-                  delete values["stats"][key2][key3];
+                  delete values["stats"][camelCaseKey2][key3];
                 }
               });
             });
@@ -229,28 +290,6 @@ const mergeItems = async (endpoints, latestVersion) => {
     }
   });
 
-  // Validate keys from mergedItems
-  const requiredKeys = [
-    "categories",
-    "classes",
-    "description",
-    "from",
-    "gold",
-    "icon",
-    "iconOverlay",
-    "id",
-    "inStore",
-    "into",
-    "maps",
-    "maxStacks",
-    "mythic",
-    "name",
-    "nicknames",
-    "requiredChampion",
-    "simpleDescription",
-    "stats",
-    "tier",
-  ];
   // Set default values for required keys
   var defaultValues = {
     categories: [],
@@ -335,4 +374,5 @@ const main = async () => {
   }
 };
 
+main();
 exports.getItems = getItems;

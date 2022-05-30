@@ -1,5 +1,5 @@
 {
-  "$id": "schemaA",
+  "$id": "itemsSchema",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "additionalProperties": {
@@ -150,151 +150,71 @@
       "additionalProperties": false,
       "properties": {
         "abilityPower": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "armor": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "armorPenetration": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
+          "type": "object"
         },
         "attackDamage": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "attackSpeed": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "cooldownReduction": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
+          "type": "object"
         },
         "criticalStrikeChance": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
+          "type": "object"
         },
-        "goldPer_10": {
-          "$ref": "#/definitions/AbilityHaste"
+        "goldPer10": {
+          "type": "object"
         },
         "healAndShieldPower": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "health": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "healthRegen": {
-          "$ref": "#/definitions/HealthRegen"
+          "type": "object"
         },
         "lethality": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "lifesteal": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
+          "type": "object"
         },
         "magicPenetration": {
-          "$ref": "#/definitions/HealthRegen"
+          "type": "object"
         },
         "magicResistance": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "mana": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "manaRegen": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
+          "type": "object"
         },
         "movespeed": {
-          "$ref": "#/definitions/HealthRegen"
+          "type": "object"
         },
         "abilityHaste": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         },
         "omnivamp": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
+          "type": "object"
         },
         "tenacity": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "ability_power": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "armor_penetration": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
-        },
-        "attack_damage": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "attack_speed": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
-        },
-        "cooldown_reduction": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
-        },
-        "critical_strike_chance": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
-        },
-        "gold_per_10": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "heal_and_shield_power": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "health_regen": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
-        },
-        "magic_penetration": {
-          "$ref": "#/definitions/ArmorPenetrationClass"
-        },
-        "magic_resistance": {
-          "$ref": "#/definitions/AbilityHaste"
-        },
-        "mana_regen": {
-          "$ref": "#/definitions/PurpleArmorPenetration"
-        },
-        "ability_haste": {
-          "$ref": "#/definitions/AbilityHaste"
+          "type": "object"
         }
       },
       "required": [],
       "title": "Stats"
-    },
-    "AbilityHaste": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "flat": {
-          "type": "integer"
-        }
-      },
-      "required": [],
-      "title": "AbilityHaste"
-    },
-    "PurpleArmorPenetration": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "percent": {
-          "type": "integer"
-        }
-      },
-      "required": [],
-      "title": "PurpleArmorPenetration"
-    },
-    "ArmorPenetrationClass": {
-      "type": "object",
-      "additionalProperties": false,
-      "title": "ArmorPenetrationClass"
-    },
-    "HealthRegen": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "percent": {
-          "type": "integer"
-        },
-        "flat": {
-          "type": "integer"
-        }
-      },
-      "required": [],
-      "title": "HealthRegen"
     },
     "Category": {
       "type": "string",
