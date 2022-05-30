@@ -374,5 +374,4 @@ const main = async () => {
   }
 };
 
-main();
 exports.getItems = getItems;
