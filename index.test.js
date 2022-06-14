@@ -1,6 +1,6 @@
 const fs = require("fs");
 const axios = require("axios");
-const { getLatestVersion } = require("./src/getLatestVersion");
+const { getLatestVersion } = require("./src/utils/getLatestVersion");
 const { matchersWithOptions } = require("jest-json-schema");
 const schemaItems = require("./endpoints/items.schema.json");
 const items = require("./data/latest/items.json");

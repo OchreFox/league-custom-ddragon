@@ -1,5 +1,4 @@
 const core = require("@actions/core");
-const github = require("@actions/github");
 const { getItems } = require("./src/items");
 const { getChampions } = require("./src/champions");
 

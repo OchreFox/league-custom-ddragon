@@ -2,7 +2,10 @@ const core = require("@actions/core");
 const fs = require("fs");
 const axios = require("axios");
 var _ = require("lodash");
-const { getLatestVersion } = require("./getLatestVersion");
+const { getLatestVersion } = require("./utils/getLatestVersion");
+
+// Load env variables from .env file
+require("dotenv").config();
 
 const mergeChampions = async (endpoints, latestVersion) => {
   const queryString = JSON.stringify({
@@ -182,5 +185,10 @@ const main = async () => {
     core.setFailed(error.message);
   }
 };
+
+// Only run main if running locally
+if (process.env.GITHUB_ACTIONS !== "true") {
+  main();
+}
 
 exports.getChampions = getChampions;
