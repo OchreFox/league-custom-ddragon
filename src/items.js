@@ -80,7 +80,7 @@ const mergeItems = async (endpoints, latestVersion) => {
       mergedItems[key].description = description;
     }
     if (value.icon) {
-      let iconName = value.icon.split("/").pop().split(".")[0];
+      let iconName = value.icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
         downloadImage(`data/img/items/${iconName}.webp`, value.icon);
       }
