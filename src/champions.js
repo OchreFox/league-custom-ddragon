@@ -115,6 +115,20 @@ const mergeChampions = async (endpoints, latestVersion) => {
   // Merge mobalytics data with mergedChampionData
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
 
+  Object.keys(mergedChampionData).forEach((key) => {
+    // Save champion images
+    let icon = mergedChampionData[key].icon;
+    if (icon) {
+      let iconName = icon.split("/").pop().split(".")[0] || "";
+      if (iconName && iconName.length > 0) {
+        downloadImage(`data/img/champions/${iconName}.webp`, icon);
+        mergedChampionData[
+          key
+        ].icon = `https://cdn.statically.io/gh/OchreFox/league-custom-ddragon/main/data/img/champions/${iconName}.webp`;
+      }
+    }
+  });
+
   // Create a copy of the mergedChampionData
   let lightweightChampionData = _.cloneDeep(mergedChampionData);
 
@@ -125,15 +139,6 @@ const mergeChampions = async (endpoints, latestVersion) => {
     delete lightweightChampionData[key].stats;
     delete lightweightChampionData[key].key;
     delete lightweightChampionData[key].slug;
-
-    // Save champion images
-    let icon = lightweightChampionData[key].icon;
-    if (icon) {
-      let iconName = icon.split("/").pop().split(".")[0] || "";
-      if (iconName && iconName.length > 0) {
-        downloadImage(`data/img/champions/${iconName}.webp`, icon);
-      }
-    }
   });
 
   // Write the merged champions.json file
