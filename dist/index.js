@@ -371,7 +371,7 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
 }; // Get the items.json file from the different endpoints specified in items.json
 const $76373db6f8f9b572$export$d2f92acf417bbf5d = async ()=>{
     // Read the items.json configuration file
-    const itemsConfig = JSON.parse($76373db6f8f9b572$require$Buffer.from("Ww0KICB7DQogICAgIm5hbWUiOiAiQmxpdHoiLA0KICAgICJiYXNlVXJsIjogImh0dHBzOi8vYmxpdHotY2RuLXBsYWluLmJsaXR6LmdnL2JsaXR6L2RkcmFnb24vIiwNCiAgICAicmVzb3VyY2UiOiAiL2RhdGEvZW5fVVMvaXRlbXMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogdHJ1ZQ0KICB9LA0KICB7DQogICAgIm5hbWUiOiAiTWVyYWtpQW5hbHl0aWNzIiwNCiAgICAiYmFzZVVybCI6ICJodHRwczovL2Nkbi5tZXJha2lhbmFseXRpY3MuY29tL3Jpb3QvbG9sL3Jlc291cmNlcy9sYXRlc3QiLA0KICAgICJyZXNvdXJjZSI6ICIvZW4tVVMvaXRlbXMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UNCiAgfSwNCiAgew0KICAgICJuYW1lIjogIkNvbW11bml0eURyYWdvbiIsDQogICAgImJhc2VVcmwiOiAiaHR0cHM6Ly9yYXcuY29tbXVuaXR5ZHJhZ29uLm9yZy9sYXRlc3QiLA0KICAgICJyZXNvdXJjZSI6ICIvcGx1Z2lucy9yY3AtYmUtbG9sLWdhbWUtZGF0YS9nbG9iYWwvZGVmYXVsdC92MS9pdGVtcy5qc29uIiwNCiAgICAibmVlZHNMYXRlc3QiOiBmYWxzZQ0KICB9DQpdDQo=", "base64")); // Fetch the latest version of DDragon
+    const itemsConfig = JSON.parse($76373db6f8f9b572$require$Buffer.from("WwogIHsKICAgICJuYW1lIjogIkJsaXR6IiwKICAgICJiYXNlVXJsIjogImh0dHBzOi8vYmxpdHotY2RuLXBsYWluLmJsaXR6LmdnL2JsaXR6L2RkcmFnb24vIiwKICAgICJyZXNvdXJjZSI6ICIvZGF0YS9lbl9VUy9pdGVtcy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IHRydWUKICB9LAogIHsKICAgICJuYW1lIjogIk1lcmFraUFuYWx5dGljcyIsCiAgICAiYmFzZVVybCI6ICJodHRwczovL2Nkbi5tZXJha2lhbmFseXRpY3MuY29tL3Jpb3QvbG9sL3Jlc291cmNlcy9sYXRlc3QiLAogICAgInJlc291cmNlIjogIi9lbi1VUy9pdGVtcy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IGZhbHNlCiAgfSwKICB7CiAgICAibmFtZSI6ICJDb21tdW5pdHlEcmFnb24iLAogICAgImJhc2VVcmwiOiAiaHR0cHM6Ly9yYXcuY29tbXVuaXR5ZHJhZ29uLm9yZy9sYXRlc3QiLAogICAgInJlc291cmNlIjogIi9wbHVnaW5zL3JjcC1iZS1sb2wtZ2FtZS1kYXRhL2dsb2JhbC9kZWZhdWx0L3YxL2l0ZW1zLmpzb24iLAogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UKICB9Cl0K", "base64")); // Fetch the latest version of DDragon
     const latestVersion = await (0, $a072fe81d980d88c$export$892e128ba377ffbb)();
     let endpoints = []; // Fetch the items.json from the itemsConfig
     itemsConfig.forEach((endpoint)=>{
@@ -397,7 +397,6 @@ const $76373db6f8f9b572$var$main = async ()=>{
         console.log("Error: " + error.message);
     }
 }; // Only run main if running locally
-$76373db6f8f9b572$var$main();
 
 
 
@@ -528,7 +527,7 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
 }; // Get the champions.json file from the different endpoints specified in champions.json
 const $81027238ae25e8be$export$35cb4d67758a4ff5 = async ()=>{
     // Read the champions.json configuration file
-    const championsConfig = JSON.parse($81027238ae25e8be$require$Buffer.from("Ww0KICB7DQogICAgIm5hbWUiOiAiTWVyYWtpQW5hbHl0aWNzIiwNCiAgICAiYmFzZVVybCI6ICJodHRwOi8vY2RuLm1lcmFraWFuYWx5dGljcy5jb20vcmlvdC9sb2wvcmVzb3VyY2VzL2xhdGVzdCIsDQogICAgInJlc291cmNlIjogIi9lbi1VUy9jaGFtcGlvbnMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UNCiAgfQ0KXQ0K", "base64"));
+    const championsConfig = JSON.parse($81027238ae25e8be$require$Buffer.from("WwogIHsKICAgICJuYW1lIjogIk1lcmFraUFuYWx5dGljcyIsCiAgICAiYmFzZVVybCI6ICJodHRwOi8vY2RuLm1lcmFraWFuYWx5dGljcy5jb20vcmlvdC9sb2wvcmVzb3VyY2VzL2xhdGVzdCIsCiAgICAicmVzb3VyY2UiOiAiL2VuLVVTL2NoYW1waW9ucy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IGZhbHNlCiAgfQpdCg==", "base64"));
     const latestVersion = await (0, $a072fe81d980d88c$export$892e128ba377ffbb)();
     let endpoints = []; // Create an endpoints array from the configuration file
     championsConfig.forEach((endpoint)=>{
@@ -553,7 +552,6 @@ const $81027238ae25e8be$var$main = async ()=>{
         (0, $bdjGp$setFailed)(error.message);
     }
 }; // Only run main if running locally
-$81027238ae25e8be$var$main();
 
 
 const $747425b437e121da$var$main = async ()=>{
