@@ -364,7 +364,10 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
         }
         if (value.icon) {
             let iconName = value.icon.split("/").pop().split(".")[0] || "";
-            if (iconName && iconName.length > 0) (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.webp`, value.icon);
+            if (iconName && iconName.length > 0) {
+                (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.webp`, value.icon);
+                mergedItems[key].icon = `https://cdn.statically.io/gh/OchreFox/league-custom-ddragon/main/data/img/items/${iconName}.webp`;
+            }
         }
     });
     (0, $af5ed0ae26f181df$export$f72109ef0e0decb6)(latestVersion, mergedItems);
@@ -504,7 +507,18 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
             Object.assign(mergedChampionData, data);
         }
     }); // Merge mobalytics data with mergedChampionData
-    mergedChampionData = (0, $bdjGp$lodash).merge(mergedChampionData, mobalyticsData); // Create a copy of the mergedChampionData
+    mergedChampionData = (0, $bdjGp$lodash).merge(mergedChampionData, mobalyticsData);
+    Object.keys(mergedChampionData).forEach((key)=>{
+        // Save champion images
+        let icon = mergedChampionData[key].icon;
+        if (icon) {
+            let iconName = icon.split("/").pop().split(".")[0] || "";
+            if (iconName && iconName.length > 0) {
+                (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.webp`, icon);
+                mergedChampionData[key].icon = `https://cdn.statically.io/gh/OchreFox/league-custom-ddragon/main/data/img/champions/${iconName}.webp`;
+            }
+        }
+    }); // Create a copy of the mergedChampionData
     let lightweightChampionData = (0, $bdjGp$lodash).cloneDeep(mergedChampionData);
     Object.keys(lightweightChampionData).forEach((key)=>{
         // Delete unneeded keys (abilities, skins, stats, key, slug)
@@ -512,12 +526,7 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
         delete lightweightChampionData[key].skins;
         delete lightweightChampionData[key].stats;
         delete lightweightChampionData[key].key;
-        delete lightweightChampionData[key].slug; // Save champion images
-        let icon = lightweightChampionData[key].icon;
-        if (icon) {
-            let iconName = icon.split("/").pop().split(".")[0] || "";
-            if (iconName && iconName.length > 0) (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.webp`, icon);
-        }
+        delete lightweightChampionData[key].slug;
     }); // Write the merged champions.json file
     // deepcode ignore PT: Wont fix this right away
     (0, $bdjGp$writeFileSync)(`data/${latestVersion}/champions.json`, JSON.stringify(mergedChampionData));
