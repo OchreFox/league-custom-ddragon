@@ -1,11 +1,11 @@
-const core = require("@actions/core");
-const fs = require("fs");
-const axios = require("axios");
-var _ = require("lodash");
-const { getLatestVersion } = require("./utils/getLatestVersion");
-
+import { info, setFailed } from "@actions/core";
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from "fs";
+import axios from "axios";
+import _ from "lodash";
+import { getLatestVersion } from "./utils/getLatestVersion.js";
 // Load env variables from .env file
-require("dotenv").config();
+import "dotenv/config";
+import downloadImage from "./utils/downloadImages.js";
 
 const mergeChampions = async (endpoints, latestVersion) => {
   const queryString = JSON.stringify({
@@ -63,7 +63,7 @@ const mergeChampions = async (endpoints, latestVersion) => {
   }`,
     variables: {},
   });
-  var mobalyticsConfig = {
+  let mobalyticsConfig = {
     method: "post",
     url: "https://app.mobalytics.gg/api/league/gql/static/v1",
     headers: {
@@ -125,24 +125,29 @@ const mergeChampions = async (endpoints, latestVersion) => {
     delete lightweightChampionData[key].stats;
     delete lightweightChampionData[key].key;
     delete lightweightChampionData[key].slug;
+
+    // Save champion images
+    let icon = lightweightChampionData[key].icon;
+    let iconName = icon.split("/").pop().split(".")[0];
+    downloadImage(`data/img/champions/${iconName}.webp`, icon);
   });
 
   // Write the merged champions.json file
   // deepcode ignore PT: Wont fix this right away
-  fs.writeFileSync(
+  writeFileSync(
     `data/${latestVersion}/champions.json`,
     JSON.stringify(mergedChampionData)
   );
-  fs.writeFileSync(
+  writeFileSync(
     `data/latest/champions.json`,
     JSON.stringify(mergedChampionData)
   );
   // deepcode ignore PT: Wont fix this right away
-  fs.writeFileSync(
+  writeFileSync(
     `data/${latestVersion}/champions-summary.json`,
     JSON.stringify(lightweightChampionData)
   );
-  fs.writeFileSync(
+  writeFileSync(
     `data/latest/champions-summary.json`,
     JSON.stringify(lightweightChampionData)
   );
@@ -150,11 +155,9 @@ const mergeChampions = async (endpoints, latestVersion) => {
 
 // Get the champions.json file from the different endpoints specified in champions.json
 // Return the custom merged champions.json file
-const getChampions = async () => {
+export const getChampions = async () => {
   // Read the champions.json configuration file
-  const championsConfig = JSON.parse(
-    fs.readFileSync("endpoints/champions.json")
-  );
+  const championsConfig = JSON.parse(readFileSync("endpoints/champions.json"));
   const latestVersion = await getLatestVersion();
   let endpoints = [];
   // Create an endpoints array from the configuration file
@@ -167,12 +170,12 @@ const getChampions = async () => {
     console.log(endpoint.name + " champions URL: " + url);
   });
   // Create a folder in /data if it doesn't exist for the latest version
-  if (!fs.existsSync(`data/${latestVersion}`)) {
-    fs.mkdirSync(`data/${latestVersion}`);
+  if (!existsSync(`data/${latestVersion}`)) {
+    mkdirSync(`data/${latestVersion}`);
   }
   // Create the folder latest in /data if it doesn't exist
-  if (!fs.existsSync(`data/latest`)) {
-    fs.mkdirSync(`data/latest`);
+  if (!existsSync(`data/latest`)) {
+    mkdirSync(`data/latest`);
   }
   await mergeChampions(endpoints, latestVersion);
 };
@@ -180,9 +183,9 @@ const getChampions = async () => {
 const main = async () => {
   try {
     await getChampions();
-    core.info("Successfully merged champions.json");
+    info("Successfully merged champions.json");
   } catch (error) {
-    core.setFailed(error.message);
+    setFailed(error.message);
   }
 };
 
@@ -190,5 +193,3 @@ const main = async () => {
 if (process.env.GITHUB_ACTIONS !== "true") {
   main();
 }
-
-exports.getChampions = getChampions;

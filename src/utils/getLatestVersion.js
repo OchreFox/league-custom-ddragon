@@ -1,8 +1,8 @@
-const axios = require("axios");
+import axios from "axios";
 
 /**
  * Gets the latest version of DDragon from https://ddragon.leagueoflegends.com/api/versions.json
- * @returns The latest version of the game.
+ * @returns {string} The latest version of the game.
  */
 const getLatestVersion = async () => {
   const response = await axios.get(
@@ -13,4 +13,5 @@ const getLatestVersion = async () => {
   latestVersion = latestVersion.replace(/[^0-9.]/g, "");
   return latestVersion;
 };
-exports.getLatestVersion = getLatestVersion;
+const _getLatestVersion = getLatestVersion;
+export { _getLatestVersion as getLatestVersion };

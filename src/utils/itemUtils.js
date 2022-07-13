@@ -1,13 +1,13 @@
-const path = require("path");
-const fs = require("fs");
-var _ = require("lodash");
+import path from "path";
+import fs from "fs";
+import _ from "lodash";
 
 // Function to convert a string from snake case to camel case
-const snakeToCamel = (str) => {
+export const snakeToCamel = (str) => {
   return str.replace(/(_\w)/g, (m) => m[1].toUpperCase());
 };
 
-function writeItems(latestVersion, mergedItems) {
+export function writeItems(latestVersion, mergedItems) {
   // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
   let rootPath = "data/";
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
@@ -19,7 +19,7 @@ function writeItems(latestVersion, mergedItems) {
   fs.writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
 }
 
-function getCommunityDragonData(endpoint, mergedItems) {
+export function getCommunityDragonData(endpoint, mergedItems) {
   let requiredKeysCD = ["categories", "inStore", "maxStacks"];
   endpoint.data.forEach((item) => {
     const key = item.id;
@@ -29,7 +29,7 @@ function getCommunityDragonData(endpoint, mergedItems) {
   });
 }
 
-function getMerakiData(
+export function getMerakiData(
   values,
   requiredKeysMeraki,
   admittedClasses,
@@ -98,7 +98,7 @@ function getMerakiData(
   return { filteredItem, classes };
 }
 
-function getBlitzData(endpoint) {
+export function getBlitzData(endpoint) {
   let data = endpoint.data.data;
   // Parse numbers
   Object.entries(data).forEach((entry) => {
@@ -123,10 +123,3 @@ function getBlitzData(endpoint) {
   });
   return data;
 }
-
-module.exports = {
-  getCommunityDragonData,
-  getMerakiData,
-  getBlitzData,
-  writeItems,
-};

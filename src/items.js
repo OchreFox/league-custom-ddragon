@@ -1,23 +1,23 @@
-const axios = require("axios");
-const core = require("@actions/core");
-var _ = require("lodash");
-const fs = require("fs");
-const { getLatestVersion } = require("./utils/getLatestVersion");
-const { sanitizeText } = require("./utils/sanitizeText");
-const {
+import axios from "axios";
+import { info, setFailed } from "@actions/core";
+import _ from "lodash";
+import { readFileSync, existsSync, mkdirSync } from "fs";
+import { getLatestVersion } from "./utils/getLatestVersion.js";
+import { sanitizeText } from "./utils/sanitizeText.js";
+import {
   getCommunityDragonData,
   getMerakiData,
   getBlitzData,
   writeItems,
-} = require("./utils/itemUtils");
-const {
+} from "./utils/itemUtils.js";
+import {
   requiredKeysMeraki,
   admittedClasses,
   defaultValues,
-} = require("./utils/constants");
-
+} from "./utils/constants.js";
+import downloadImage from "./utils/downloadImages.js";
 // Load env variables from .env file
-require("dotenv").config();
+import "dotenv/config";
 
 const mergeItems = async (endpoints, latestVersion) => {
   // Create a new array to store the items.json files
@@ -35,8 +35,7 @@ const mergeItems = async (endpoints, latestVersion) => {
   itemEndpoints.forEach((endpoint) => {
     switch (endpoint.name) {
       case "Blitz":
-        var blitzData = getBlitzData(endpoint);
-        Object.assign(mergedItems, blitzData);
+        Object.assign(mergedItems, getBlitzData(endpoint));
         break;
 
       case "MerakiAnalytics":
@@ -80,6 +79,10 @@ const mergeItems = async (endpoints, latestVersion) => {
       description = sanitizeText(value);
       mergedItems[key].description = description;
     }
+    if (value.icon) {
+      let iconName = value.icon.split("/").pop().split(".")[0];
+      downloadImage(`data/img/items/${iconName}.webp`, value.icon);
+    }
   });
 
   writeItems(latestVersion, mergedItems);
@@ -87,9 +90,9 @@ const mergeItems = async (endpoints, latestVersion) => {
 
 // Get the items.json file from the different endpoints specified in items.json
 // Return the custom merged items.json file
-const getItems = async () => {
+export const getItems = async () => {
   // Read the items.json configuration file
-  const itemsConfig = JSON.parse(fs.readFileSync("endpoints/items.json"));
+  const itemsConfig = JSON.parse(readFileSync("endpoints/items.json"));
   // Fetch the latest version of DDragon
   const latestVersion = await getLatestVersion();
   let endpoints = [];
@@ -103,12 +106,12 @@ const getItems = async () => {
     console.log(endpoint.name + " items URL: " + url);
   });
   // Create a folder in /data if it doesn't exist for the latest version
-  if (!fs.existsSync(`data/${latestVersion}`)) {
-    fs.mkdirSync(`data/${latestVersion}`);
+  if (!existsSync(`data/${latestVersion}`)) {
+    mkdirSync(`data/${latestVersion}`);
   }
   // Create the folder latest in /data if it doesn't exist
-  if (!fs.existsSync(`data/latest`)) {
-    fs.mkdirSync(`data/latest`);
+  if (!existsSync(`data/latest`)) {
+    mkdirSync(`data/latest`);
   }
   await mergeItems(endpoints, latestVersion);
 };
@@ -116,9 +119,9 @@ const getItems = async () => {
 const main = async () => {
   try {
     await getItems();
-    core.info("Successfully merged items.json");
+    info("Successfully merged items.json");
   } catch (error) {
-    core.setFailed(error.message);
+    setFailed(error.message);
     console.log("Error: " + error.message);
   }
 };
@@ -127,5 +130,3 @@ const main = async () => {
 if (process.env.GITHUB_ACTIONS !== "true") {
   main();
 }
-
-exports.getItems = getItems;

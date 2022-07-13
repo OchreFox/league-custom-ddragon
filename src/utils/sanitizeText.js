@@ -1,9 +1,12 @@
-var _ = require("lodash");
-const createDOMPurify = require("dompurify");
-const { JSDOM } = require("jsdom");
-const { XMLParser, XMLBuilder } = require("fast-xml-parser");
+import _ from "lodash";
+import createDOMPurify from "dompurify";
+import { JSDOM } from "jsdom";
+import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
-// Function to convert a string from camel case or snake case to pascal case
+/**
+ * Function to convert a string from camel case or snake case to pascal case
+ * @param {string} str - The string to convert to PascalCase.
+ */
 const toPascalCase = (str) => {
   return str
     .split("_")
@@ -11,12 +14,20 @@ const toPascalCase = (str) => {
     .join("");
 };
 
-const sanitizeText = (item) => {
+/**
+ * It takes a string, sanitizes it, parses it, and returns a string.
+ * @param {itemsSchema} item - {
+ * @returns {string} A string of XML.
+ */
+export const sanitizeText = (item) => {
   if (!item) return "";
-  const text = item.description;
+  let text = item.description;
   if (!text) {
     return;
   }
+  // Remove curly braces from API placeholders
+  text = text.replaceAll("{", "");
+  text = text.replaceAll("}", "");
   const pascalCaseTags = [
     "Active",
     "Attention",
@@ -82,7 +93,7 @@ const sanitizeText = (item) => {
   const xml = parser.parse(sanitizedText);
   // Remove stats from the xml object
   if (xml.mainText?.stats) {
-    for (var key in xml.mainText.stats) {
+    for (let key in xml.mainText.stats) {
       delete xml.mainText.stats[key];
     }
   }
@@ -90,7 +101,7 @@ const sanitizeText = (item) => {
   const builder = new XMLBuilder({
     preserveOrder: true,
   });
-  var xmlString = builder.build(xml);
+  let xmlString = builder.build(xml);
 
   // Add stats between <Stats> tag and </Stats> tag
   xmlString = parseStats(xmlString, item);
@@ -105,22 +116,20 @@ const sanitizeText = (item) => {
   return xmlString;
 };
 
-exports.sanitizeText = sanitizeText;
-
 /**
  * Takes an XML string and an item object, and replaces the string with a JSX element
- * @param xmlString - The string of the xml file
- * @param item - The item object that contains the stats
- * @returns The xmlString is being returned with the stats of the item.
+ * @param {string} xmlString - The string of the xml file
+ * @param {itemsSchema} item - The item object that contains the stats
+ * @returns {string} The xmlString is being returned with the stats of the item.
  * @example
  * Returns: <Stats><Stat name="Attack Speed">1.5</Stat></Stats>
  */
-function parseStats(xmlString, item) {
+export function parseStats(xmlString, item) {
   const statsRegex = /<Stats>(.*?)<\/Stats>/g;
   const statsMatch = xmlString.match(statsRegex);
   if (statsMatch) {
     const statsTag = statsMatch[0];
-    var statsString = "";
+    let statsString = "";
 
     // Create the stats string with the stats of the item
     if (item.stats) {
@@ -141,15 +150,16 @@ function parseStats(xmlString, item) {
 }
 
 /** Combine all two adjacent Active tags when the first one is "Active -"
- * @param xmlString - The string of the xml file
+ * @param {string} xmlString - The string of the xml file
+ * @returns {string} Parsed string
  * @example
  * Input: <Active>Active -</Active><Active>Lorem ipsum</Active>
  * Result:  <Active>Active - Lorem ipsum</Active>
  */
-function parseActives(xmlString) {
+export function parseActives(xmlString) {
   const activeRegex = /<Active>(.*?)<\/Active>/g;
   const activeMatch = xmlString.match(activeRegex);
-  var skipNext = false;
+  let skipNext = false;
   if (activeMatch) {
     // Loop through each match
     for (const match of activeMatch) {

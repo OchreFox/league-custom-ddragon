@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Custom versions of DDragon JSON files for other league-related projects",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "test": "jest",
@@ -24,19 +25,23 @@
   },
   "homepage": "https://github.com/OchreFox/league-custom-ddragon#readme",
   "dependencies": {
-    "@actions/core": "^1.7.0",
+    "@actions/core": "^1.9.0",
     "@actions/github": "^5.0.3",
     "axios": "^0.27.2",
-    "dompurify": "^2.3.8",
+    "dompurify": "^2.3.9",
     "dotenv": "^16.0.1",
-    "fast-xml-parser": "^4.0.7",
-    "jsdom": "^19.0.0",
-    "lodash": "^4.17.21"
+    "fast-xml-parser": "^4.0.9",
+    "fs-extra": "^10.1.0",
+    "jsdom": "^20.0.0",
+    "lodash": "^4.17.21",
+    "sharp": "^0.30.7"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.33.4",
-    "eslint": "^8.17.0",
-    "jest": "^27.5.1",
+    "@babel/core": "^7.18.6",
+    "@babel/eslint-parser": "^7.18.2",
+    "@vercel/ncc": "^0.34.0",
+    "eslint": "^8.19.0",
+    "jest": "^28.1.3",
     "jest-json-schema": "^6.1.0"
   }
 }

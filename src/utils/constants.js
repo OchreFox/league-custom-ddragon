@@ -1,4 +1,4 @@
-const requiredKeysMeraki = [
+export const requiredKeysMeraki = [
   "icon",
   "iconOverlay",
   "nicknames",
@@ -8,7 +8,7 @@ const requiredKeysMeraki = [
   "stats",
 ];
 
-const admittedClasses = [
+export const admittedClasses = [
   "MAGE",
   "SUPPORT",
   "TANK",
@@ -18,7 +18,7 @@ const admittedClasses = [
 ];
 
 // Set default values for required keys
-const defaultValues = {
+export const defaultValues = {
   categories: [],
   classes: [],
   description: null,
@@ -38,10 +38,4 @@ const defaultValues = {
   simpleDescription: "",
   stats: {},
   tier: 0,
-};
-
-module.exports = {
-  requiredKeysMeraki,
-  admittedClasses,
-  defaultValues,
 };
