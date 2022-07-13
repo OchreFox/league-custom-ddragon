@@ -81,7 +81,9 @@ const mergeItems = async (endpoints, latestVersion) => {
     }
     if (value.icon) {
       let iconName = value.icon.split("/").pop().split(".")[0];
-      downloadImage(`data/img/items/${iconName}.webp`, value.icon);
+      if (iconName && iconName.length > 0) {
+        downloadImage(`data/img/items/${iconName}.webp`, value.icon);
+      }
     }
   });
 

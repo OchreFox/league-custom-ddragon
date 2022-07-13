@@ -129,7 +129,9 @@ const mergeChampions = async (endpoints, latestVersion) => {
     // Save champion images
     let icon = lightweightChampionData[key].icon;
     let iconName = icon.split("/").pop().split(".")[0];
-    downloadImage(`data/img/champions/${iconName}.webp`, icon);
+    if (iconName && iconName.length > 0) {
+      downloadImage(`data/img/champions/${iconName}.webp`, icon);
+    }
   });
 
   // Write the merged champions.json file
