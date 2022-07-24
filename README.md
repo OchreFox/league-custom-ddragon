@@ -21,7 +21,10 @@ This action generates custom `items.json` and `champions.json` files from a comb
 
 Releases the custom-merged JSON files to serve and to be consumed by other league-related repositories.
 
-You can check the CDN version of the latest file here: <https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/items.json>
+You can check the CDN version of the latest file here:
+<https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/items.json>
+<https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/champions.json>
+<https://cdn.jsdelivr.net/gh/OchreFox/league-custom-ddragon@main/data/latest/champions-summary.json>
 
 ### `items.json`
 
