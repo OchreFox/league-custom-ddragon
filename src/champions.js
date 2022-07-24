@@ -121,10 +121,9 @@ const mergeChampions = async (endpoints, latestVersion) => {
     if (icon) {
       let iconName = icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        downloadImage(`data/img/champions/${iconName}.webp`, icon);
-        mergedChampionData[
-          key
-        ].icon = `https://cdn.statically.io/gh/OchreFox/league-custom-ddragon/main/data/img/champions/${iconName}.webp`;
+        downloadImage(`data/img/champions/${iconName}.png`, icon);
+        // deepcode ignore PrototypePollution: won't fix
+        mergedChampionData[key].icon = `data/img/champions/${iconName}.png`;
       }
     }
   });

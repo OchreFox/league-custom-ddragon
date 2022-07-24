@@ -82,10 +82,8 @@ const mergeItems = async (endpoints, latestVersion) => {
     if (value.icon) {
       let iconName = value.icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        downloadImage(`data/img/items/${iconName}.webp`, value.icon);
-        mergedItems[
-          key
-        ].icon = `https://cdn.statically.io/gh/OchreFox/league-custom-ddragon/main/data/img/items/${iconName}.webp`;
+        downloadImage(`data/img/items/${iconName}.png`, value.icon);
+        mergedItems[key].icon = `data/img/items/${iconName}.png`;
       }
     }
   });
