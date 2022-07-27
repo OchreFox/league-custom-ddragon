@@ -115,18 +115,22 @@ const mergeChampions = async (endpoints, latestVersion) => {
   // Merge mobalytics data with mergedChampionData
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
 
-  Object.keys(mergedChampionData).forEach((key) => {
+  for (const key of Object.keys(mergedChampionData)) {
     // Save champion images
     let icon = mergedChampionData[key].icon;
     if (icon) {
       let iconName = icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        downloadImage(`data/img/champions/${iconName}.png`, icon);
+        // deepcode ignore PrototypePollution: won't fix
+        mergedChampionData[key].placeholder = await downloadImage(
+          `data/img/champions/${iconName}.png`,
+          icon
+        );
         // deepcode ignore PrototypePollution: won't fix
         mergedChampionData[key].icon = `data/img/champions/${iconName}.png`;
       }
     }
-  });
+  }
 
   // Create a copy of the mergedChampionData
   let lightweightChampionData = _.cloneDeep(mergedChampionData);
@@ -139,6 +143,8 @@ const mergeChampions = async (endpoints, latestVersion) => {
     delete lightweightChampionData[key].key;
     delete lightweightChampionData[key].slug;
   });
+
+  console.info("Writing champions data to file...");
 
   // Write the merged champions.json file
   // deepcode ignore PT: Wont fix this right away

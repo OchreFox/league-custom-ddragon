@@ -46,8 +46,15 @@
         },
         "icon": {
           "type": "string",
-          "qt-uri-protocols": ["https"],
-          "qt-uri-extensions": [".png"]
+          "qt-uri-protocols": [
+            "https"
+          ],
+          "qt-uri-extensions": [
+            ".png"
+          ]
+        },
+        "placeholder": {
+          "type": "string"
         },
         "iconOverlay": {
           "type": "boolean"
@@ -142,7 +149,12 @@
           "type": "integer"
         }
       },
-      "required": ["base", "purchasable", "sell", "total"],
+      "required": [
+        "base",
+        "purchasable",
+        "sell",
+        "total"
+      ],
       "title": "Gold"
     },
     "Stats": {
@@ -254,12 +266,24 @@
     },
     "Class": {
       "type": "string",
-      "enum": ["MAGE", "SUPPORT", "TANK", "FIGHTER", "MARKSMAN", "ASSASSIN"],
+      "enum": [
+        "MAGE",
+        "SUPPORT",
+        "TANK",
+        "FIGHTER",
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
       "title": "Class"
     },
     "RequiredChampion": {
       "type": "string",
-      "enum": ["", "FiddleSticks", "Kalista", "Gangplank"],
+      "enum": [
+        "",
+        "FiddleSticks",
+        "Kalista",
+        "Gangplank"
+      ],
       "title": "RequiredChampion"
     }
   }

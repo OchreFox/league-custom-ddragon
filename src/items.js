@@ -73,7 +73,7 @@ const mergeItems = async (endpoints, latestVersion) => {
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
 
   // Sanitize item description for each item in mergedItems
-  Object.entries(mergedItems).forEach(([key, value]) => {
+  for (const [key, value] of Object.entries(mergedItems)) {
     let description = value.description;
     if (description) {
       description = sanitizeText(value);
@@ -82,12 +82,17 @@ const mergeItems = async (endpoints, latestVersion) => {
     if (value.icon) {
       let iconName = value.icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        downloadImage(`data/img/items/${iconName}.png`, value.icon);
+        let base64 = await downloadImage(
+          `data/img/items/${iconName}.png`,
+          value.icon
+        );
+        mergedItems[key].placeholder = base64;
         mergedItems[key].icon = `data/img/items/${iconName}.png`;
       }
     }
-  });
+  }
 
+  console.info("Writing items data to file...");
   writeItems(latestVersion, mergedItems);
 };
 

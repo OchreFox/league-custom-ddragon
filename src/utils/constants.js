@@ -34,6 +34,7 @@ export const defaultValues = {
   mythic: false,
   name: "",
   nicknames: [],
+  placeholder: "",
   requiredChampion: "",
   simpleDescription: "",
   stats: {},
