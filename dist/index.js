@@ -9,6 +9,7 @@ import {JSDOM as $bdjGp$JSDOM} from "jsdom";
 import {XMLParser as $bdjGp$XMLParser, XMLBuilder as $bdjGp$XMLBuilder} from "fast-xml-parser";
 import $bdjGp$path from "path";
 import $bdjGp$sharp from "sharp";
+import {getPlaiceholder as $bdjGp$getPlaiceholder} from "plaiceholder";
 
 
 
@@ -279,6 +280,7 @@ const $88da1d261a291d79$export$7e292eecf5a8f340 = {
     mythic: false,
     name: "",
     nicknames: [],
+    placeholder: "",
     requiredChampion: "",
     simpleDescription: "",
     stats: {},
@@ -289,12 +291,15 @@ const $88da1d261a291d79$export$7e292eecf5a8f340 = {
 
 
 
+
 /**
  * &gt;&gt;&gt; downloadImage("data/img/items/image.png", "http://www.example.com/image.png")
  * @param {string} filename - The path of the file to be downloaded. Include the subfolder for champion or items
  * @param {string} url - The URL path to the image you want to download.
+ * @returns {Promise<string>} Base64 placeholder string.
  */ async function $d6326052a6c66b69$var$downloadImage(filename, url) {
-    if (!filename || !url) return; // Create folders
+    if (!filename || !url) return;
+    let placeholder = ""; // Create folders
     if (!(0, $bdjGp$existsSync)("data/img/champions")) (0, $bdjGp$mkdirSync)("data/img/champions", {
         recursive: true
     });
@@ -303,12 +308,26 @@ const $88da1d261a291d79$export$7e292eecf5a8f340 = {
     });
     await (0, $bdjGp$axios).get(url, {
         responseType: "arraybuffer"
-    }).then((res)=>{
-        (0, $bdjGp$sharp)(res.data).toFile(filename, (err)=>err && console.error(err));
+    }).then(async (axiosResponse)=>{
         console.log("Saving image " + filename);
+        await (0, $bdjGp$sharp)(axiosResponse.data).toFile(filename).then(async ()=>{
+            await (0, $bdjGp$getPlaiceholder)(axiosResponse.data).then((_ref)=>{
+                let { base64: base64  } = _ref;
+                return placeholder = base64;
+            }).catch((error)=>console.error(error));
+        }).catch((err)=>{
+            console.error(err);
+        });
     }).catch((err)=>console.error(err));
+    return placeholder;
 }
-var $d6326052a6c66b69$export$2e2bcd8739ae039 = $d6326052a6c66b69$var$downloadImage;
+var $d6326052a6c66b69$export$2e2bcd8739ae039 // test
+ = $d6326052a6c66b69$var$downloadImage;
+// eslint-disable-next-line no-unused-vars
+const $d6326052a6c66b69$var$test = async ()=>{
+    let res = await $d6326052a6c66b69$var$downloadImage("data/img/champions/Aatrox.png", "https://ddragon.leagueoflegends.com/cdn/12.13.1/img/champion/Aatrox.png");
+    console.log("Base64: " + res);
+};
 
 
 
@@ -355,21 +374,22 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
         return (0, $bdjGp$lodash).defaults(item, (0, $88da1d261a291d79$export$7e292eecf5a8f340));
     });
     console.log(`Merged ${Object.keys(mergedItems).length} items`); // Sanitize item description for each item in mergedItems
-    Object.entries(mergedItems).forEach((_ref)=>{
-        let [key, value] = _ref;
+    for (const [key1, value] of Object.entries(mergedItems)){
         let description = value.description;
         if (description) {
             description = (0, $7dc28d40dab20735$export$ba2133a82fa5e0a1)(value);
-            mergedItems[key].description = description;
+            mergedItems[key1].description = description;
         }
         if (value.icon) {
             let iconName = value.icon.split("/").pop().split(".")[0] || "";
             if (iconName && iconName.length > 0) {
-                (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.png`, value.icon);
-                mergedItems[key].icon = `data/img/items/${iconName}.png`;
+                let base64 = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.png`, value.icon);
+                mergedItems[key1].placeholder = base64;
+                mergedItems[key1].icon = `data/img/items/${iconName}.png`;
             }
         }
-    });
+    }
+    console.info("Writing items data to file...");
     (0, $af5ed0ae26f181df$export$f72109ef0e0decb6)(latestVersion, mergedItems);
 }; // Get the items.json file from the different endpoints specified in items.json
 const $76373db6f8f9b572$export$d2f92acf417bbf5d = async ()=>{
@@ -508,17 +528,18 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
         }
     }); // Merge mobalytics data with mergedChampionData
     mergedChampionData = (0, $bdjGp$lodash).merge(mergedChampionData, mobalyticsData);
-    Object.keys(mergedChampionData).forEach((key)=>{
+    for (const key1 of Object.keys(mergedChampionData)){
         // Save champion images
-        let icon = mergedChampionData[key].icon;
+        let icon = mergedChampionData[key1].icon;
         if (icon) {
             let iconName = icon.split("/").pop().split(".")[0] || "";
             if (iconName && iconName.length > 0) {
-                (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.png`, icon); // deepcode ignore PrototypePollution: won't fix
-                mergedChampionData[key].icon = `data/img/champions/${iconName}.png`;
+                // deepcode ignore PrototypePollution: won't fix
+                mergedChampionData[key1].placeholder = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.png`, icon); // deepcode ignore PrototypePollution: won't fix
+                mergedChampionData[key1].icon = `data/img/champions/${iconName}.png`;
             }
         }
-    }); // Create a copy of the mergedChampionData
+    } // Create a copy of the mergedChampionData
     let lightweightChampionData = (0, $bdjGp$lodash).cloneDeep(mergedChampionData);
     Object.keys(lightweightChampionData).forEach((key)=>{
         // Delete unneeded keys (abilities, skins, stats, key, slug)
@@ -527,7 +548,8 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
         delete lightweightChampionData[key].stats;
         delete lightweightChampionData[key].key;
         delete lightweightChampionData[key].slug;
-    }); // Write the merged champions.json file
+    });
+    console.info("Writing champions data to file..."); // Write the merged champions.json file
     // deepcode ignore PT: Wont fix this right away
     (0, $bdjGp$writeFileSync)(`data/${latestVersion}/champions.json`, JSON.stringify(mergedChampionData));
     (0, $bdjGp$writeFileSync)(`data/latest/champions.json`, JSON.stringify(mergedChampionData)); // deepcode ignore PT: Wont fix this right away
