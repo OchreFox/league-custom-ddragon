@@ -383,9 +383,9 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
         if (value.icon) {
             let iconName = value.icon.split("/").pop().split(".")[0] || "";
             if (iconName && iconName.length > 0) {
-                let base64 = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.png`, value.icon);
+                let base64 = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/items/${iconName}.webp`, value.icon);
                 mergedItems[key1].placeholder = base64;
-                mergedItems[key1].icon = `data/img/items/${iconName}.png`;
+                mergedItems[key1].icon = `data/img/items/${iconName}.webp`;
             }
         }
     }
@@ -535,8 +535,8 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
             let iconName = icon.split("/").pop().split(".")[0] || "";
             if (iconName && iconName.length > 0) {
                 // deepcode ignore PrototypePollution: won't fix
-                mergedChampionData[key1].placeholder = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.png`, icon); // deepcode ignore PrototypePollution: won't fix
-                mergedChampionData[key1].icon = `data/img/champions/${iconName}.png`;
+                mergedChampionData[key1].placeholder = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.webp`, icon); // deepcode ignore PrototypePollution: won't fix
+                mergedChampionData[key1].icon = `data/img/champions/${iconName}.webp`;
             }
         }
     } // Create a copy of the mergedChampionData
