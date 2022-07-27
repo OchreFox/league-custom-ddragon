@@ -123,11 +123,11 @@ const mergeChampions = async (endpoints, latestVersion) => {
       if (iconName && iconName.length > 0) {
         // deepcode ignore PrototypePollution: won't fix
         mergedChampionData[key].placeholder = await downloadImage(
-          `data/img/champions/${iconName}.png`,
+          `data/img/champions/${iconName}.webp`,
           icon
         );
         // deepcode ignore PrototypePollution: won't fix
-        mergedChampionData[key].icon = `data/img/champions/${iconName}.png`;
+        mergedChampionData[key].icon = `data/img/champions/${iconName}.webp`;
       }
     }
   }

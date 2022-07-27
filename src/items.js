@@ -83,11 +83,11 @@ const mergeItems = async (endpoints, latestVersion) => {
       let iconName = value.icon.split("/").pop().split(".")[0] || "";
       if (iconName && iconName.length > 0) {
         let base64 = await downloadImage(
-          `data/img/items/${iconName}.png`,
+          `data/img/items/${iconName}.webp`,
           value.icon
         );
         mergedItems[key].placeholder = base64;
-        mergedItems[key].icon = `data/img/items/${iconName}.png`;
+        mergedItems[key].icon = `data/img/items/${iconName}.webp`;
       }
     }
   }
