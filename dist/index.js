@@ -21,8 +21,7 @@ import {getPlaiceholder as $bdjGp$getPlaiceholder} from "plaiceholder";
  * @returns {string} The latest version of the game.
  */ const $a072fe81d980d88c$var$getLatestVersion = async ()=>{
     const response = await (0, $bdjGp$axios).get("https://ddragon.leagueoflegends.com/api/versions.json");
-    let latestVersion = response.data[0];
-    // Sanitize latest version, only accept numbers and dots
+    let latestVersion = response.data[0]; // Sanitize latest version, only accept numbers and dots
     latestVersion = latestVersion.replace(/[^0-9.]/g, "");
     return latestVersion;
 };
@@ -43,7 +42,7 @@ const $7dc28d40dab20735$export$ba2133a82fa5e0a1 = (item)=>{
     if (!item) return "";
     let text = item.description;
     if (!text) return;
-    // Remove curly braces from API placeholders
+     // Remove curly braces from API placeholders
     text = text.replaceAll("{", "");
     text = text.replaceAll("}", "");
     const pascalCaseTags = [
@@ -64,9 +63,8 @@ const $7dc28d40dab20735$export$ba2133a82fa5e0a1 = (item)=>{
         "ScaleMana",
         "Stats",
         "Status",
-        "TrueDamage", 
-    ];
-    // Sanitize text with dompurify
+        "TrueDamage"
+    ]; // Sanitize text with dompurify
     const window = new (0, $bdjGp$JSDOM)("").window;
     const DOMPurify = (0, $bdjGp$dompurify)(window);
     let sanitizedText = DOMPurify.sanitize(text, {
@@ -88,34 +86,28 @@ const $7dc28d40dab20735$export$ba2133a82fa5e0a1 = (item)=>{
             "scaleMana",
             "stats",
             "status",
-            "trueDamage", 
+            "trueDamage"
         ],
         FORBID_TAGS: [
             "br"
         ]
-    });
-    // Replace all lowercase words inside the sanitizedText with the camelCaseTags version
+    }); // Replace all lowercase words inside the sanitizedText with the camelCaseTags version
     pascalCaseTags.forEach((tag)=>{
-        const lowercaseTag = tag.toLowerCase();
-        // Replace lowercase tag with tag
+        const lowercaseTag = tag.toLowerCase(); // Replace lowercase tag with tag
         sanitizedText = (0, $bdjGp$lodash).replace(sanitizedText, new RegExp(lowercaseTag, "g"), tag);
-    });
-    // Parse with fast-xml-parser
+    }); // Parse with fast-xml-parser
     const parser = new (0, $bdjGp$XMLParser)({
         preserveOrder: true
     });
-    const xml = parser.parse(sanitizedText);
-    // Remove stats from the xml object
+    const xml = parser.parse(sanitizedText); // Remove stats from the xml object
     if (xml.mainText?.stats) for(let key in xml.mainText.stats)delete xml.mainText.stats[key];
-    // Convert xml object to XML string
+     // Convert xml object to XML string
     const builder = new (0, $bdjGp$XMLBuilder)({
         preserveOrder: true
     });
-    let xmlString = builder.build(xml);
-    // Add stats between <Stats> tag and </Stats> tag
+    let xmlString = builder.build(xml); // Add stats between <Stats> tag and </Stats> tag
     xmlString = $7dc28d40dab20735$export$27eae5098e402097(xmlString, item);
-    xmlString = $7dc28d40dab20735$export$fc7b52e25005f66c(xmlString);
-    // Replace in xmlString:
+    xmlString = $7dc28d40dab20735$export$fc7b52e25005f66c(xmlString); // Replace in xmlString:
     // Add a whitespace (' ') before a less than character ('<') if the preceding character is a letter (a-z, A-Z) or a colon (':')
     const lessThanRegex = /([a-zA-Z,:])</g;
     xmlString = xmlString.replace(lessThanRegex, "$1 <");
@@ -126,10 +118,11 @@ function $7dc28d40dab20735$export$27eae5098e402097(xmlString, item) {
     const statsMatch = xmlString.match(statsRegex);
     if (statsMatch) {
         const statsTag = statsMatch[0];
-        let statsString = "";
-        // Create the stats string with the stats of the item
-        if (item.stats) Object.entries(item.stats).forEach(([keyItem, value])=>{
-            Object.entries(value).forEach(([key2, value2])=>{
+        let statsString = ""; // Create the stats string with the stats of the item
+        if (item.stats) Object.entries(item.stats).forEach((_ref)=>{
+            let [keyItem, value] = _ref;
+            Object.entries(value).forEach((_ref2)=>{
+                let [key2, value2] = _ref2;
                 let statName = $7dc28d40dab20735$var$toPascalCase(key2) + $7dc28d40dab20735$var$toPascalCase(keyItem);
                 statsString += `<Stat name="${statName}">${value2}${key2.includes("percent") ? "%" : ""}</Stat>`;
             });
@@ -147,19 +140,15 @@ function $7dc28d40dab20735$export$fc7b52e25005f66c(xmlString) {
     for (const match of activeMatch){
         // If skipNext is set to true, skip the next match
         if (skipNext === true) {
-            skipNext = false;
-            // Delete the match from the xmlString
+            skipNext = false; // Delete the match from the xmlString
             xmlString = (0, $bdjGp$lodash).replace(xmlString, match, "");
             continue;
-        }
-        // Get the content of the match
-        const tagContent = match.replace(/<\/?Active>/g, "");
-        // Check if the content is "Active -"
+        } // Get the content of the match
+        const tagContent = match.replace(/<\/?Active>/g, ""); // Check if the content is "Active -"
         if (tagContent === "Active -") {
             // Replace the match with the "Active - " and the content of the next match
             const nextTagContent = activeMatch[activeMatch.indexOf(match) + 1].replace(/<\/?Active>/g, "").trim();
-            xmlString = (0, $bdjGp$lodash).replace(xmlString, match, `<Active>Active - ${nextTagContent}</Active>`);
-            // Skip the next match
+            xmlString = (0, $bdjGp$lodash).replace(xmlString, match, `<Active>Active - ${nextTagContent}</Active>`); // Skip the next match
             skipNext = true;
         }
     }
@@ -176,12 +165,9 @@ const $af5ed0ae26f181df$export$b70dcce1c70696bf = (str)=>{
 function $af5ed0ae26f181df$export$f72109ef0e0decb6(latestVersion, mergedItems) {
     // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
     let rootPath = "data/";
-    let latestVersionPath = (0, $bdjGp$path).join(rootPath, latestVersion, "/items.json");
-    // Sanitize path to avoid directory traversal
-    latestVersionPath = (0, $bdjGp$path).normalize(latestVersionPath);
-    // deepcode ignore PT: Wont fix this right away
-    (0, $bdjGp$fs).writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
-    // Also save a copy in the latest folder
+    let latestVersionPath = (0, $bdjGp$path).join(rootPath, latestVersion, "/items.json"); // Sanitize path to avoid directory traversal
+    latestVersionPath = (0, $bdjGp$path).normalize(latestVersionPath); // deepcode ignore PT: Wont fix this right away
+    (0, $bdjGp$fs).writeFileSync(latestVersionPath, JSON.stringify(mergedItems)); // Also save a copy in the latest folder
     (0, $bdjGp$fs).writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
 }
 function $af5ed0ae26f181df$export$729599aafc1e0529(endpoint, mergedItems) {
@@ -192,8 +178,7 @@ function $af5ed0ae26f181df$export$729599aafc1e0529(endpoint, mergedItems) {
     ];
     endpoint.data.forEach((item)=>{
         const key = item.id;
-        let filteredItem = (0, $bdjGp$lodash).pick(item, requiredKeysCD);
-        // Append the filteredItem to the mergedItems in the corresponding key
+        let filteredItem = (0, $bdjGp$lodash).pick(item, requiredKeysCD); // Append the filteredItem to the mergedItems in the corresponding key
         mergedItems[key] = {
             ...mergedItems[key],
             ...filteredItem
@@ -201,17 +186,14 @@ function $af5ed0ae26f181df$export$729599aafc1e0529(endpoint, mergedItems) {
     });
 }
 function $af5ed0ae26f181df$export$565bf946232721c0(values, requiredKeysMeraki, admittedClasses, itemEndpoints) {
-    let filteredItem = (0, $bdjGp$lodash).pick(values, requiredKeysMeraki);
-    // Get an array of champion classes from nested object property
+    let filteredItem = (0, $bdjGp$lodash).pick(values, requiredKeysMeraki); // Get an array of champion classes from nested object property
     let classes = (0, $bdjGp$lodash).get(values, "shop.tags");
     if (classes.length > 0) classes = (0, $bdjGp$lodash).filter(classes, (className)=>admittedClasses.includes(className));
-    // Remove empty keys from stats to reduce the size of the json file
+     // Remove empty keys from stats to reduce the size of the json file
     let stats = (0, $bdjGp$lodash).get(values, "stats");
     if (stats) Object.entries(stats).forEach((stat)=>{
-        const [key2, value2] = stat;
-        // Convert key2 from snake case to camel case
-        const camelCaseKey2 = $af5ed0ae26f181df$export$b70dcce1c70696bf(key2);
-        // Replace key2
+        const [key2, value2] = stat; // Convert key2 from snake case to camel case
+        const camelCaseKey2 = $af5ed0ae26f181df$export$b70dcce1c70696bf(key2); // Replace key2
         if (key2 !== camelCaseKey2) {
             Object.defineProperty(stats, camelCaseKey2, Object.getOwnPropertyDescriptor(stats, key2));
             delete stats[key2];
@@ -221,7 +203,7 @@ function $af5ed0ae26f181df$export$565bf946232721c0(values, requiredKeysMeraki, a
             if (value3 === 0) delete values["stats"][camelCaseKey2][key3];
         });
     });
-    // Validate that the icon is a valid URL
+     // Validate that the icon is a valid URL
     if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {
         // Get item from CommunityDragon endpoint data
         let CDragonIconPath = (0, $bdjGp$lodash).chain(itemEndpoints).find({
@@ -231,8 +213,7 @@ function $af5ed0ae26f181df$export$565bf946232721c0(values, requiredKeysMeraki, a
         }).get("iconPath").value();
         if (CDragonIconPath) {
             // Strip text after Icons2d/ from the icon path
-            CDragonIconPath = CDragonIconPath.split("Icons2D/")[1].toLowerCase();
-            // Set fallback icon if the icon is not a valid URL
+            CDragonIconPath = CDragonIconPath.split("Icons2D/")[1].toLowerCase(); // Set fallback icon if the icon is not a valid URL
             filteredItem.icon = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/" + CDragonIconPath;
             console.warn(`Item ${values.name}-${values.id} has an invalid icon URL, using fallback icon`);
         }
@@ -243,8 +224,7 @@ function $af5ed0ae26f181df$export$565bf946232721c0(values, requiredKeysMeraki, a
     };
 }
 function $af5ed0ae26f181df$export$da5df5ff3aa425bd(endpoint) {
-    let data = endpoint.data.data;
-    // Parse numbers
+    let data = endpoint.data.data; // Parse numbers
     Object.entries(data).forEach((entry)=>{
         const [key, value] = entry;
         Object.entries(value).forEach((item)=>{
@@ -268,7 +248,7 @@ const $88da1d261a291d79$export$95b538874120021a = [
     "requiredChampion",
     "simpleDescription",
     "tier",
-    "stats", 
+    "stats"
 ];
 const $88da1d261a291d79$export$3297c962ec624a01 = [
     "MAGE",
@@ -276,8 +256,8 @@ const $88da1d261a291d79$export$3297c962ec624a01 = [
     "TANK",
     "FIGHTER",
     "MARKSMAN",
-    "ASSASSIN", 
-];
+    "ASSASSIN"
+]; // Set default values for required keys
 const $88da1d261a291d79$export$7e292eecf5a8f340 = {
     categories: [],
     classes: [],
@@ -321,8 +301,7 @@ const $88da1d261a291d79$export$7e292eecf5a8f340 = {
         console.warn("No filename or url specified");
         return;
     }
-    let placeholder = "";
-    // Create folders
+    let placeholder = ""; // Create folders
     if (!(0, $bdjGp$existsSync)("data/img/champions")) (0, $bdjGp$mkdirSync)("data/img/champions", {
         recursive: true
     });
@@ -334,7 +313,10 @@ const $88da1d261a291d79$export$7e292eecf5a8f340 = {
     }).then(async (axiosResponse)=>{
         console.log("Saving image " + filename);
         await (0, $bdjGp$sharp)(axiosResponse.data).toFile(filename).then(async ()=>{
-            await (0, $bdjGp$getPlaiceholder)(axiosResponse.data).then(({ base64: base64  })=>placeholder = base64).catch((error)=>console.error(error));
+            await (0, $bdjGp$getPlaiceholder)(axiosResponse.data).then((_ref)=>{
+                let { base64: base64  } = _ref;
+                return placeholder = base64;
+            }).catch((error)=>console.error(error));
         }).catch((err)=>{
             console.error(err);
         });
@@ -380,8 +362,7 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
                 Object.entries(endpoint.data).forEach((item)=>{
                     const key = item[0];
                     const values = item[1];
-                    let { filteredItem: filteredItem , classes: classes  } = (0, $af5ed0ae26f181df$export$565bf946232721c0)(values, (0, $88da1d261a291d79$export$95b538874120021a), (0, $88da1d261a291d79$export$3297c962ec624a01), itemEndpoints);
-                    // Append the filteredItem and the classes to the mergedItems in the corresponding key
+                    let { filteredItem: filteredItem , classes: classes  } = (0, $af5ed0ae26f181df$export$565bf946232721c0)(values, (0, $88da1d261a291d79$export$95b538874120021a), (0, $88da1d261a291d79$export$3297c962ec624a01), itemEndpoints); // Append the filteredItem and the classes to the mergedItems in the corresponding key
                     mergedItems[key] = {
                         ...mergedItems[key],
                         ...filteredItem,
@@ -393,13 +374,11 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
                 (0, $af5ed0ae26f181df$export$729599aafc1e0529)(endpoint, mergedItems);
                 break;
         }
-    });
-    // Merge the default values with every item in mergedItems
+    }); // Merge the default values with every item in mergedItems
     mergedItems = (0, $bdjGp$lodash).mapValues(mergedItems, (item)=>{
         return (0, $bdjGp$lodash).defaults(item, (0, $88da1d261a291d79$export$7e292eecf5a8f340));
     });
-    console.log(`Merged ${Object.keys(mergedItems).length} items`);
-    // Sanitize item description for each item in mergedItems
+    console.log(`Merged ${Object.keys(mergedItems).length} items`); // Sanitize item description for each item in mergedItems
     for (const [key1, value] of Object.entries(mergedItems)){
         let description = value.description;
         if (description) {
@@ -418,14 +397,12 @@ const $76373db6f8f9b572$var$mergeItems = async (endpoints, latestVersion)=>{
     }
     console.info("Writing items data to file...");
     (0, $af5ed0ae26f181df$export$f72109ef0e0decb6)(latestVersion, mergedItems);
-};
+}; // Get the items.json file from the different endpoints specified in items.json
 const $76373db6f8f9b572$export$d2f92acf417bbf5d = async ()=>{
     // Read the items.json configuration file
-    const itemsConfig = JSON.parse($76373db6f8f9b572$require$Buffer.from("Ww0KICB7DQogICAgIm5hbWUiOiAiQmxpdHoiLA0KICAgICJiYXNlVXJsIjogImh0dHBzOi8vYmxpdHotY2RuLXBsYWluLmJsaXR6LmdnL2JsaXR6L2RkcmFnb24vIiwNCiAgICAicmVzb3VyY2UiOiAiL2RhdGEvZW5fVVMvaXRlbXMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogdHJ1ZQ0KICB9LA0KICB7DQogICAgIm5hbWUiOiAiTWVyYWtpQW5hbHl0aWNzIiwNCiAgICAiYmFzZVVybCI6ICJodHRwczovL2Nkbi5tZXJha2lhbmFseXRpY3MuY29tL3Jpb3QvbG9sL3Jlc291cmNlcy9sYXRlc3QiLA0KICAgICJyZXNvdXJjZSI6ICIvZW4tVVMvaXRlbXMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UNCiAgfSwNCiAgew0KICAgICJuYW1lIjogIkNvbW11bml0eURyYWdvbiIsDQogICAgImJhc2VVcmwiOiAiaHR0cHM6Ly9yYXcuY29tbXVuaXR5ZHJhZ29uLm9yZy9sYXRlc3QiLA0KICAgICJyZXNvdXJjZSI6ICIvcGx1Z2lucy9yY3AtYmUtbG9sLWdhbWUtZGF0YS9nbG9iYWwvZGVmYXVsdC92MS9pdGVtcy5qc29uIiwNCiAgICAibmVlZHNMYXRlc3QiOiBmYWxzZQ0KICB9DQpdDQo=", "base64"));
-    // Fetch the latest version of DDragon
+    const itemsConfig = JSON.parse($76373db6f8f9b572$require$Buffer.from("WwogIHsKICAgICJuYW1lIjogIkJsaXR6IiwKICAgICJiYXNlVXJsIjogImh0dHBzOi8vYmxpdHotY2RuLXBsYWluLmJsaXR6LmdnL2JsaXR6L2RkcmFnb24vIiwKICAgICJyZXNvdXJjZSI6ICIvZGF0YS9lbl9VUy9pdGVtcy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IHRydWUKICB9LAogIHsKICAgICJuYW1lIjogIk1lcmFraUFuYWx5dGljcyIsCiAgICAiYmFzZVVybCI6ICJodHRwczovL2Nkbi5tZXJha2lhbmFseXRpY3MuY29tL3Jpb3QvbG9sL3Jlc291cmNlcy9sYXRlc3QiLAogICAgInJlc291cmNlIjogIi9lbi1VUy9pdGVtcy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IGZhbHNlCiAgfSwKICB7CiAgICAibmFtZSI6ICJDb21tdW5pdHlEcmFnb24iLAogICAgImJhc2VVcmwiOiAiaHR0cHM6Ly9yYXcuY29tbXVuaXR5ZHJhZ29uLm9yZy9sYXRlc3QiLAogICAgInJlc291cmNlIjogIi9wbHVnaW5zL3JjcC1iZS1sb2wtZ2FtZS1kYXRhL2dsb2JhbC9kZWZhdWx0L3YxL2l0ZW1zLmpzb24iLAogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UKICB9Cl0K", "base64")); // Fetch the latest version of DDragon
     const latestVersion = await (0, $a072fe81d980d88c$export$892e128ba377ffbb)();
-    let endpoints = [];
-    // Fetch the items.json from the itemsConfig
+    let endpoints = []; // Fetch the items.json from the itemsConfig
     itemsConfig.forEach((endpoint)=>{
         console.log("Fetching items.json from " + endpoint.name);
         const url = `${endpoint.baseUrl}${endpoint.needsLatest ? latestVersion : ""}${endpoint.resource}`;
@@ -434,10 +411,9 @@ const $76373db6f8f9b572$export$d2f92acf417bbf5d = async ()=>{
             url: url
         });
         console.log(endpoint.name + " items URL: " + url);
-    });
-    // Create a folder in /data if it doesn't exist for the latest version
+    }); // Create a folder in /data if it doesn't exist for the latest version
     if (!(0, $bdjGp$existsSync)(`data/${latestVersion}`)) (0, $bdjGp$mkdirSync)(`data/${latestVersion}`);
-    // Create the folder latest in /data if it doesn't exist
+     // Create the folder latest in /data if it doesn't exist
     if (!(0, $bdjGp$existsSync)(`data/latest`)) (0, $bdjGp$mkdirSync)(`data/latest`);
     await $76373db6f8f9b572$var$mergeItems(endpoints, latestVersion);
 }; // const main = async () => {
@@ -531,8 +507,7 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
     let championEndpoints = [];
     let championPromises = [];
     let mobalyticsData = [];
-    let mergedChampionData = {};
-    // Fetch the champions.json from the endpoints
+    let mergedChampionData = {}; // Fetch the champions.json from the endpoints
     endpoints.forEach((endpoint)=>{
         let promise = (0, $bdjGp$axios).get(endpoint.url).then((response)=>{
             championEndpoints.push({
@@ -543,24 +518,24 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
         championPromises.push(promise);
     });
     await Promise.all(championPromises);
-    championPromises = [];
-    // Get data from Mobalytics GraphQL API
+    championPromises = []; // Get data from Mobalytics GraphQL API
     let mobalyticsPromise = (0, $bdjGp$axios)(mobalyticsConfig).then(function(response) {
-        mobalyticsData = (0, $bdjGp$lodash).chain(response.data.data.info).flatMap(({ flatData: flatData  })=>flatData).keyBy("riotSlug").value();
+        mobalyticsData = (0, $bdjGp$lodash).chain(response.data.data.info).flatMap((_ref)=>{
+            let { flatData: flatData  } = _ref;
+            return flatData;
+        }).keyBy("riotSlug").value();
         console.log("Mobalytics data fetched");
     }).catch(function(error) {
         console.log(error);
     });
     championPromises.push(mobalyticsPromise);
-    await Promise.all(championPromises);
-    // Get data from endpoints
+    await Promise.all(championPromises); // Get data from endpoints
     championEndpoints.forEach((endpoint)=>{
         if (endpoint.name === "MerakiAnalytics") {
             let data = endpoint.data;
             Object.assign(mergedChampionData, data);
         }
-    });
-    // Merge mobalytics data with mergedChampionData
+    }); // Merge mobalytics data with mergedChampionData
     mergedChampionData = (0, $bdjGp$lodash).merge(mergedChampionData, mobalyticsData);
     for (const key1 of Object.keys(mergedChampionData)){
         // Save champion images
@@ -569,13 +544,11 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
             let iconName = icon.split("/").pop().split(".")[0] || "";
             if (iconName && iconName.length > 0) {
                 // deepcode ignore PrototypePollution: won't fix
-                mergedChampionData[key1].placeholder = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.webp`, icon);
-                // deepcode ignore PrototypePollution: won't fix
+                mergedChampionData[key1].placeholder = await (0, $d6326052a6c66b69$export$2e2bcd8739ae039)(`data/img/champions/${iconName}.webp`, icon); // deepcode ignore PrototypePollution: won't fix
                 mergedChampionData[key1].icon = `data/img/champions/${iconName}.webp`;
             }
         }
-    }
-    // Create a copy of the mergedChampionData
+    } // Create a copy of the mergedChampionData
     let lightweightChampionData = (0, $bdjGp$lodash).cloneDeep(mergedChampionData);
     Object.keys(lightweightChampionData).forEach((key)=>{
         // Delete unneeded keys (abilities, skins, stats, key, slug)
@@ -585,21 +558,18 @@ const $81027238ae25e8be$var$mergeChampions = async (endpoints, latestVersion)=>{
         delete lightweightChampionData[key].key;
         delete lightweightChampionData[key].slug;
     });
-    console.info("Writing champions data to file...");
-    // Write the merged champions.json file
+    console.info("Writing champions data to file..."); // Write the merged champions.json file
     // deepcode ignore PT: Wont fix this right away
     (0, $bdjGp$writeFileSync)(`data/${latestVersion}/champions.json`, JSON.stringify(mergedChampionData));
-    (0, $bdjGp$writeFileSync)(`data/latest/champions.json`, JSON.stringify(mergedChampionData));
-    // deepcode ignore PT: Wont fix this right away
+    (0, $bdjGp$writeFileSync)(`data/latest/champions.json`, JSON.stringify(mergedChampionData)); // deepcode ignore PT: Wont fix this right away
     (0, $bdjGp$writeFileSync)(`data/${latestVersion}/champions-summary.json`, JSON.stringify(lightweightChampionData));
     (0, $bdjGp$writeFileSync)(`data/latest/champions-summary.json`, JSON.stringify(lightweightChampionData));
-};
+}; // Get the champions.json file from the different endpoints specified in champions.json
 const $81027238ae25e8be$export$35cb4d67758a4ff5 = async ()=>{
     // Read the champions.json configuration file
-    const championsConfig = JSON.parse($81027238ae25e8be$require$Buffer.from("Ww0KICB7DQogICAgIm5hbWUiOiAiTWVyYWtpQW5hbHl0aWNzIiwNCiAgICAiYmFzZVVybCI6ICJodHRwOi8vY2RuLm1lcmFraWFuYWx5dGljcy5jb20vcmlvdC9sb2wvcmVzb3VyY2VzL2xhdGVzdCIsDQogICAgInJlc291cmNlIjogIi9lbi1VUy9jaGFtcGlvbnMuanNvbiIsDQogICAgIm5lZWRzTGF0ZXN0IjogZmFsc2UNCiAgfQ0KXQ0K", "base64"));
+    const championsConfig = JSON.parse($81027238ae25e8be$require$Buffer.from("WwogIHsKICAgICJuYW1lIjogIk1lcmFraUFuYWx5dGljcyIsCiAgICAiYmFzZVVybCI6ICJodHRwOi8vY2RuLm1lcmFraWFuYWx5dGljcy5jb20vcmlvdC9sb2wvcmVzb3VyY2VzL2xhdGVzdCIsCiAgICAicmVzb3VyY2UiOiAiL2VuLVVTL2NoYW1waW9ucy5qc29uIiwKICAgICJuZWVkc0xhdGVzdCI6IGZhbHNlCiAgfQpdCg==", "base64"));
     const latestVersion = await (0, $a072fe81d980d88c$export$892e128ba377ffbb)();
-    let endpoints = [];
-    // Create an endpoints array from the configuration file
+    let endpoints = []; // Create an endpoints array from the configuration file
     championsConfig.forEach((endpoint)=>{
         console.log("Fetching champions.json from " + endpoint.name);
         const url = `${endpoint.baseUrl}${endpoint.needsLatest ? latestVersion : ""}${endpoint.resource}`;
@@ -608,10 +578,9 @@ const $81027238ae25e8be$export$35cb4d67758a4ff5 = async ()=>{
             url: url
         });
         console.log(endpoint.name + " champions URL: " + url);
-    });
-    // Create a folder in /data if it doesn't exist for the latest version
+    }); // Create a folder in /data if it doesn't exist for the latest version
     if (!(0, $bdjGp$existsSync)(`data/${latestVersion}`)) (0, $bdjGp$mkdirSync)(`data/${latestVersion}`);
-    // Create the folder latest in /data if it doesn't exist
+     // Create the folder latest in /data if it doesn't exist
     if (!(0, $bdjGp$existsSync)(`data/latest`)) (0, $bdjGp$mkdirSync)(`data/latest`);
     await $81027238ae25e8be$var$mergeChampions(endpoints, latestVersion);
 }; // const main = async () => {
