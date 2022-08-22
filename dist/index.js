@@ -410,16 +410,19 @@ const $76373db6f8f9b572$export$d2f92acf417bbf5d = async ()=>{
      // Create the folder latest in /data if it doesn't exist
     if (!(0, $bdjGp$existsSync)(`data/latest`)) (0, $bdjGp$mkdirSync)(`data/latest`);
     await $76373db6f8f9b572$var$mergeItems(endpoints, latestVersion);
-};
-const $76373db6f8f9b572$var$main = async ()=>{
-    try {
-        await $76373db6f8f9b572$export$d2f92acf417bbf5d();
-        (0, $bdjGp$info)("Successfully merged items.json");
-    } catch (error) {
-        (0, $bdjGp$setFailed)(error.message);
-        console.log("Error: " + error.message);
-    }
-}; // Only run main if running locally
+}; // const main = async () => {
+ //   try {
+ //     await getItems();
+ //     info("Successfully merged items.json");
+ //   } catch (error) {
+ //     setFailed(error.message);
+ //     console.log("Error: " + error.message);
+ //   }
+ // };
+ // // Only run main if running locally
+ // if (process.env.GITHUB_ACTIONS !== "true") {
+ //   main();
+ // }
 
 
 
@@ -574,15 +577,18 @@ const $81027238ae25e8be$export$35cb4d67758a4ff5 = async ()=>{
      // Create the folder latest in /data if it doesn't exist
     if (!(0, $bdjGp$existsSync)(`data/latest`)) (0, $bdjGp$mkdirSync)(`data/latest`);
     await $81027238ae25e8be$var$mergeChampions(endpoints, latestVersion);
-};
-const $81027238ae25e8be$var$main = async ()=>{
-    try {
-        await $81027238ae25e8be$export$35cb4d67758a4ff5();
-        (0, $bdjGp$info)("Successfully merged champions.json");
-    } catch (error) {
-        (0, $bdjGp$setFailed)(error.message);
-    }
-}; // Only run main if running locally
+}; // const main = async () => {
+ //   try {
+ //     await getChampions();
+ //     info("Successfully merged champions.json");
+ //   } catch (error) {
+ //     setFailed(error.message);
+ //   }
+ // };
+ // // Only run main if running locally
+ // if (process.env.GITHUB_ACTIONS !== "true") {
+ //   main();
+ // }
 
 
 const $747425b437e121da$var$main = async ()=>{
