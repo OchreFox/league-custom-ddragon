@@ -124,17 +124,17 @@ export const getItems = async () => {
   await mergeItems(endpoints, latestVersion);
 };
 
-const main = async () => {
-  try {
-    await getItems();
-    info("Successfully merged items.json");
-  } catch (error) {
-    setFailed(error.message);
-    console.log("Error: " + error.message);
-  }
-};
+// const main = async () => {
+//   try {
+//     await getItems();
+//     info("Successfully merged items.json");
+//   } catch (error) {
+//     setFailed(error.message);
+//     console.log("Error: " + error.message);
+//   }
+// };
 
-// Only run main if running locally
-if (process.env.GITHUB_ACTIONS !== "true") {
-  main();
-}
+// // Only run main if running locally
+// if (process.env.GITHUB_ACTIONS !== "true") {
+//   main();
+// }

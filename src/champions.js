@@ -194,16 +194,16 @@ export const getChampions = async () => {
   await mergeChampions(endpoints, latestVersion);
 };
 
-const main = async () => {
-  try {
-    await getChampions();
-    info("Successfully merged champions.json");
-  } catch (error) {
-    setFailed(error.message);
-  }
-};
+// const main = async () => {
+//   try {
+//     await getChampions();
+//     info("Successfully merged champions.json");
+//   } catch (error) {
+//     setFailed(error.message);
+//   }
+// };
 
-// Only run main if running locally
-if (process.env.GITHUB_ACTIONS !== "true") {
-  main();
-}
+// // Only run main if running locally
+// if (process.env.GITHUB_ACTIONS !== "true") {
+//   main();
+// }
