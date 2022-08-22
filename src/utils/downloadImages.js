@@ -10,7 +10,10 @@ import { getPlaiceholder } from "plaiceholder";
  * @returns {Promise<string>} Base64 placeholder string.
  */
 async function downloadImage(filename, url) {
-  if (!filename || !url) return;
+  if (!filename || !url) {
+    console.warn("No filename or url specified");
+    return;
+  }
   let placeholder = "";
 
   // Create folders
@@ -44,10 +47,10 @@ export default downloadImage;
 
 // test
 // eslint-disable-next-line no-unused-vars
-const test = async () => {
-  let res = await downloadImage(
-    "data/img/champions/Aatrox.png",
-    "https://ddragon.leagueoflegends.com/cdn/12.13.1/img/champion/Aatrox.png"
-  );
-  console.log("Base64: " + res);
-};
+// const test = async () => {
+//   let res = await downloadImage(
+//     "data/img/champions/Aatrox.png",
+//     "https://ddragon.leagueoflegends.com/cdn/12.13.1/img/champion/Aatrox.png"
+//   );
+//   console.log("Base64: " + res);
+// };

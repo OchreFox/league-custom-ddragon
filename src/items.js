@@ -1,5 +1,4 @@
 import axios from "axios";
-import { info, setFailed } from "@actions/core";
 import _ from "lodash";
 import { readFileSync, existsSync, mkdirSync } from "fs";
 import { getLatestVersion } from "./utils/getLatestVersion.js";
@@ -76,6 +75,7 @@ const mergeItems = async (endpoints, latestVersion) => {
   for (const [key, value] of Object.entries(mergedItems)) {
     let description = value.description;
     if (description) {
+      console.log("Sanitizing text for item description");
       description = sanitizeText(value);
       mergedItems[key].description = description;
     }
