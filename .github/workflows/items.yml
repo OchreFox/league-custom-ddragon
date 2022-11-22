@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     name: Build Items
     steps:
@@ -37,7 +37,7 @@ jobs:
       - name: Build custom json files
         # id: items
         # uses: OchreFox/league-custom-ddragon@main
-        run: node dist/index.js
+        run: npm run start
       - name: Run tests
         run: npm run test
       - name: Commit files
