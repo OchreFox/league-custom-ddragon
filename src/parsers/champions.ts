@@ -3,18 +3,19 @@ import axios from "axios";
 import _ from "lodash";
 // Load env variables from .env file
 import "dotenv/config";
-import { downloadImage } from "~/src/utils/downloadImages";
-import { getLatestVersion } from "~/src/utils/getLatestVersion";
-import championsConfig from "~/endpoints/champions.json";
+import { downloadImage } from "src/utils/downloadImages.js";
+import { getLatestVersion } from "src/utils/getLatestVersion.js";
+import championsConfig from "endpoints/champions.json";
+
 import {
   Endpoint,
   EndpointChampionData,
   EndpointNames,
-} from "~/src/types/global";
+} from "src/types/global.js";
 
-import { queryString } from "~/src/utils/championQuery";
-import { MergedChampionDataObject } from "~/src/types/champions";
-import { getEndpoints } from "../utils/endpointUtils";
+import { queryString } from "src/utils/championQuery.js";
+import { MergedChampionDataObject } from "src/types/champions.js";
+import { getEndpoints, readJsonFile } from "../utils/endpointUtils.js";
 
 const mergeChampions = async (endpoints: Endpoint[], latestVersion: string) => {
   let mobalyticsConfig = {
@@ -22,6 +23,8 @@ const mergeChampions = async (endpoints: Endpoint[], latestVersion: string) => {
     url: "https://app.mobalytics.gg/api/league/gql/static/v1",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
+      "Accept-Encoding": "identity",
     },
     data: queryString,
   };
@@ -32,9 +35,17 @@ const mergeChampions = async (endpoints: Endpoint[], latestVersion: string) => {
 
   // Fetch the champions.json from the endpoints
   endpoints.forEach((endpoint) => {
-    let promise = axios.get(endpoint.url).then((response) => {
-      championEndpoints.push({ name: endpoint.name, data: response.data });
-    });
+    let promise = axios
+      .get(endpoint.url, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Accept-Encoding": "identity",
+        },
+      })
+      .then((response) => {
+        championEndpoints.push({ name: endpoint.name, data: response.data });
+      });
     championPromises.push(promise);
   });
 
@@ -125,6 +136,7 @@ const mergeChampions = async (endpoints: Endpoint[], latestVersion: string) => {
 // Return the custom merged champions.json file
 export async function getChampions() {
   const latestVersion = await getLatestVersion();
+  // const championsConfig = readJsonFile("endpoints/champions.json");
   let endpoints: Endpoint[] = getEndpoints(championsConfig, latestVersion);
   // Create a folder in /data if it doesn't exist for the latest version
   if (!existsSync(`data/${latestVersion}`)) {

@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 import _ from "lodash";
-import { EndpointItemData, EndpointNames } from "~/src/types/global";
+import { EndpointItemData, EndpointNames } from "~/src/types/global.js";
 import {
   BlitzRoot,
   ChampionClass,
@@ -9,7 +9,7 @@ import {
   MerakiItem,
   MerakiItemObject,
   MerakiStats,
-} from "~/src/types/items";
+} from "~/src/types/items.js";
 import camelcaseKeys from "camelcase-keys";
 
 // Function to convert a string from snake case to camel case
@@ -73,9 +73,18 @@ export function getMerakiItemData(
     // Remove empty keys from stats to reduce the size of the json file
     let stats = _.get(itemValues, "stats");
     if (stats) {
-      let newStats: MerakiStats = camelcaseKeys(stats, { deep: true });
-      data[itemKey].stats = newStats;
-      filteredItem.stats = newStats;
+      let camelCaseStats: MerakiStats = camelcaseKeys(stats, { deep: true });
+      // Loop trough each of the stats and filter out entries with value 0
+      let newStats = _(camelCaseStats)
+        .pickBy(_.isObject)
+        .mapValues((stat) => _.pickBy(stat, _.identity))
+        .omitBy(_.isEmpty)
+        .value() as MerakiStats;
+
+      if (newStats) {
+        data[itemKey].stats = newStats;
+        filteredItem.stats = newStats;
+      }
     }
     // Validate that the icon is a valid URL
     if (

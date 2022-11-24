@@ -29,17 +29,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "npm"
+          cache: "yarn"
       - name: Install dependencies with a clean slate
-        run: npm ci
+        run: yarn install
       - name: Build dist
-        run: npm run build --if-present
+        run: yarn run build
       - name: Build custom json files
         # id: items
         # uses: OchreFox/league-custom-ddragon@main
-        run: npm run start
+        run: yarn run start
       - name: Run tests
-        run: npm run test
+        run: yarn run test
       - name: Commit files
         id: commit
         run: |

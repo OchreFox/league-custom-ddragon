@@ -42,6 +42,7 @@ export enum Category {
   Lane = "Lane",
   LifeSteal = "LifeSteal",
   MagicPenetration = "MagicPenetration",
+  MagicResist = "MagicResist",
   Mana = "Mana",
   ManaRegen = "ManaRegen",
   NonbootsMovement = "NonbootsMovement",
@@ -229,6 +230,7 @@ export interface MerakiStats {
   cooldownReduction?: MerakiStatExtended;
   criticalStrikeChance?: MerakiStatExtended;
   goldPer_10?: MerakiStatTypeBase;
+  goldPer10?: MerakiStatTypeBase;
   healAndShieldPower?: MerakiStatTypeBase;
   health: MerakiStatExtended;
   healthRegen?: MerakiStatExtended;

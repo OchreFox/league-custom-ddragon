@@ -1,4 +1,4 @@
-import { EndpointNames } from "./global";
+import { EndpointNames } from "./global.js";
 
 export interface EndpointSpec {
   name: EndpointNames | string;

@@ -1,6 +1,6 @@
 import { info } from "@actions/core";
-import { getChampions } from "./parsers/champions";
-import { getItems } from "./parsers/items";
+import { getChampions } from "./parsers/champions.js";
+import { getItems } from "./parsers/items.js";
 
 const main = async () => {
   await getItems();

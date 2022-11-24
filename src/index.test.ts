@@ -4,7 +4,7 @@ import { expect, test } from "@jest/globals";
 import { matchers } from "jest-json-schema";
 
 import { getLatestVersion } from "./utils/getLatestVersion";
-import { Endpoint, EndpointNames } from "./types/global";
+import { EndpointNames, Endpoint } from "./types/global";
 import { getEndpoints, readJsonFile } from "./utils/endpointUtils";
 
 expect.extend(matchers);
@@ -20,7 +20,13 @@ test("Latest version exists in Blitz API", async () => {
   );
   if (blitzEndpoint) {
     await axios
-      .get(blitzEndpoint.url)
+      .get(blitzEndpoint.url, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Accept-Encoding": "identity",
+        },
+      })
       .then((response) => {
         expect(response.status).toBe(200);
         return response.data;
@@ -44,12 +50,12 @@ test("Latest items.json file is created in folders", async () => {
 });
 
 // Test to validate the items.json file schema
-// test("Latest items.json file has valid schema", () => {
-//   const items = readJsonFile("data/latest/items.json");
-//   const itemsSchema = readJsonFile("schemas/items.json");
-//   // @ts-ignore
-//   expect(items).toMatchSchema(itemsSchema);
-// });
+test("Latest items.json file has valid schema", () => {
+  const items = readJsonFile("data/latest/items.json");
+  const itemsSchema = readJsonFile("schemas/items.json");
+  // @ts-ignore
+  expect(items).toMatchSchema(itemsSchema);
+});
 
 // Test to expect a creation of a latest champions.json file in the latest version directory
 test("Latest champions.json file is created in folders", async () => {

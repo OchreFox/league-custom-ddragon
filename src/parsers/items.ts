@@ -1,22 +1,22 @@
 import axios from "axios";
 import _ from "lodash";
 import { existsSync, mkdirSync } from "fs";
-import { getLatestVersion } from "~/src/utils/getLatestVersion";
-import { sanitizeText } from "~/src/utils/sanitizeText";
+import { getLatestVersion } from "~/src/utils/getLatestVersion.js";
+import { sanitizeText } from "~/src/utils/sanitizeText.js";
 import {
   getCommunityDragonItemData,
   getMerakiItemData,
   getBlitzItemData,
   writeItems,
-} from "~/src/utils/itemUtils";
-import { defaultValues } from "~/src/utils/constants";
-import { downloadImage } from "~/src/utils/downloadImages";
+} from "~/src/utils/itemUtils.js";
+import { defaultValues } from "~/src/utils/constants.js";
+import { downloadImage } from "~/src/utils/downloadImages.js";
 // Load env variables from .env file
 import "dotenv/config";
-import { Endpoint, EndpointItemData } from "~/src/types/global";
-import { ItemObject } from "~/src/types/items";
+import { Endpoint, EndpointItemData } from "~/src/types/global.js";
+import { ItemObject } from "~/src/types/items.js";
 import itemsConfig from "~/endpoints/items.json";
-import { getEndpoints, getEndpointUrl } from "../utils/endpointUtils";
+import { getEndpoints, getEndpointUrl } from "../utils/endpointUtils.js";
 
 const mergeItems = async (
   endpoints: Endpoint[],
@@ -26,9 +26,19 @@ const mergeItems = async (
   let itemPromises: Promise<void>[] = [];
 
   endpoints.forEach((endpoint) => {
-    let promise = axios.get(endpoint.url).then((response) => {
-      itemEndpointsData.push({ name: endpoint.name, data: response.data });
-    });
+    console.log(`Fetching ${endpoint.name} items...`);
+    let promise = axios
+      .get(endpoint.url, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Accept-Encoding": "identity",
+        },
+      })
+      .then((response) => {
+        console.log(`Fetched ${endpoint.name} items`);
+        itemEndpointsData.push({ name: endpoint.name, data: response.data });
+      });
     itemPromises.push(promise);
   });
   await Promise.all(itemPromises);
@@ -88,6 +98,7 @@ const mergeItems = async (
 export const getItems = async () => {
   const latestVersion = await getLatestVersion();
   let endpoints = getEndpoints(itemsConfig, latestVersion);
+  console.log("Endpoints: ", endpoints);
   // Create a folder in /data if it doesn't exist for the latest version
   if (!existsSync(`data/${latestVersion}`)) {
     mkdirSync(`data/${latestVersion}`);
@@ -99,17 +110,16 @@ export const getItems = async () => {
   await mergeItems(endpoints, latestVersion);
 };
 
-// const main = async () => {
+// const test = async () => {
 //   try {
 //     await getItems();
-//     info("Successfully merged items.json");
-//   } catch (error) {
-//     setFailed(error.message);
-//     console.log("Error: " + error.message);
+//     console.log("Successfully merged items.json");
+//   } catch (error: any) {
+//     console.error("Error: " + error.message);
 //   }
 // };
 
-// // Only run main if running locally
-// if (process.env.GITHUB_ACTIONS !== "true") {
-//   main();
+// // Only run test if running locally
+// if (!process.env.GITHUB_ACTIONS || process.env.GITHUB_ACTIONS === "false") {
+//   test();
 // }

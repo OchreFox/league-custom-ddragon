@@ -260,7 +260,8 @@
         "AbilityHaste",
         "Slow",
         "MagicPenetration",
-        "Aura"
+        "Aura",
+        "MagicResist"
       ],
       "title": "Category"
     },

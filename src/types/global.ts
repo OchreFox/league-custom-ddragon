@@ -1,5 +1,5 @@
-import { MerakiChampionObject } from "./champions";
-import { BlitzRoot, CommunityDragonItem, MerakiItemObject } from "./items";
+import { MerakiChampionObject } from "./champions.js";
+import { BlitzRoot, CommunityDragonItem, MerakiItemObject } from "./items.js";
 
 export enum EndpointNames {
   Blitz = "Blitz",

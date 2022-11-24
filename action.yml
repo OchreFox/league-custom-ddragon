@@ -2,4 +2,4 @@ name: "League Custom DDragon"
 description: "Custom versions of DDragon JSON files for other league-related projects"
 runs:
   using: "node16"
-  main: "dist/out.js"
+  main: "dist/index.js"

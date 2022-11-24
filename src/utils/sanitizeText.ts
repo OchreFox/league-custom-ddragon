@@ -1,7 +1,7 @@
 import _ from "lodash";
 import DOMPurify from "isomorphic-dompurify";
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
-import { Item } from "~/src/types/items";
+import { Item } from "~/src/types/items.js";
 
 const pascalCaseTags = [
   "Active",

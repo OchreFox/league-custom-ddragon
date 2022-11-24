@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
-    "target": "ES6" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "module": "CommonJS" /* Specify what module code is generated. https://www.typescriptlang.org/docs/handbook/esm-node.html */,
+    "target": "ESNext" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+    "module": "ESNext" /* Specify what module code is generated. https://www.typescriptlang.org/docs/handbook/esm-node.html */,
     "rootDir": "./" /* Specify the root folder within your source files. */,
     "moduleResolution": "Node" /* Specify how TypeScript looks up a file from a given module specifier. */,
     "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
     "paths": {
       "~/*": ["./*"]
     },
-    "lib": [
-      "ES2022",
-      "DOM"
-    ] /* Specify a set of bundled library declaration files that describe the target runtime environment. */,
+    "lib": ["ESNext", "DOM"],
     "resolveJsonModule": true /* Enable importing .json files. */,
     "allowJs": true,
     "sourceMap": true /* Create source map files for emitted JavaScript files. */,
@@ -24,6 +21,7 @@
     "strict": true /* Enable all strict type-checking options. */,
     // "noImplicitAny": true /* Enable error reporting for expressions and declarations with an implied 'any' type. */,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-    "isolatedModules": true
+    "isolatedModules": true /* https://vitejs.dev/guide/features.html#isolatedmodules */,
+    "useDefineForClassFields": true /* https://vitejs.dev/guide/features.html#usedefineforclassfields */
   }
 }
