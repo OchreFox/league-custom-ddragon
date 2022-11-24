@@ -598,7 +598,7 @@ var mergeItems = async (endpoints, latestVersion) => {
         ).then((placeholder) => {
           mergedItems[key].icon = `data/img/items/${iconName}.webp`;
           mergedItems[key].placeholder = placeholder;
-          console.log("Downloaded icon for " + key);
+          console.log("Downloaded icon for item " + mergedItems[key].name);
         });
         itemIconPromises.push(promise);
       }
