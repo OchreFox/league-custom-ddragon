@@ -72,6 +72,8 @@ const mergeItems = async (
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
 
   // Sanitize item description for each item in mergedItems
+  let itemIconPromises: Promise<void>[] = [];
+
   Object.entries(mergedItems).forEach(async ([key, item]) => {
     if (item.description) {
       mergedItems[key].description = sanitizeText(item);
@@ -79,15 +81,20 @@ const mergeItems = async (
     if (item.icon) {
       let iconName = item.icon.split("/").pop()?.split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        let base64 = await downloadImage(
+        let promise = downloadImage(
           `data/img/items/${iconName}.webp`,
           item.icon
-        );
-        mergedItems[key].placeholder = base64;
-        mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+        ).then((placeholder) => {
+          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+          mergedItems[key].placeholder = placeholder;
+          console.log("Downloaded icon for item " + mergedItems[key].name);
+        });
+        itemIconPromises.push(promise);
       }
     }
   });
+
+  await Promise.all(itemIconPromises);
 
   console.info("Writing items data to file...");
   writeItems(latestVersion, mergedItems);

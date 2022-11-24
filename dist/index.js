@@ -29,12 +29,13 @@ async function downloadImage(filename, url) {
   if (!existsSync("data/img/items")) {
     mkdirSync("data/img/items", { recursive: true });
   }
-  await axios.get(url, {
+  let axiosResponse = await axios.get(url, {
     responseType: "arraybuffer",
     headers: {
       "Accept-Encoding": "identity"
     }
-  }).then(async (axiosResponse) => {
+  }).catch((err) => console.error(err));
+  if (axiosResponse) {
     console.log("Saving image " + filename);
     await sharp(axiosResponse.data).toFile(filename).catch((err) => {
       console.error(err);
@@ -43,7 +44,7 @@ async function downloadImage(filename, url) {
     const clamped = new Uint8ClampedArray(data);
     const blurhash = encode(clamped, info2.width, info2.height, 4, 4);
     placeholder = blurhash;
-  }).catch((err) => console.error(err));
+  }
   return placeholder;
 }
 
@@ -582,6 +583,7 @@ var mergeItems = async (endpoints, latestVersion) => {
     return _4.defaults(item, defaultValues);
   });
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
+  let itemIconPromises = [];
   Object.entries(mergedItems).forEach(async ([key, item]) => {
     var _a;
     if (item.description) {
@@ -590,15 +592,19 @@ var mergeItems = async (endpoints, latestVersion) => {
     if (item.icon) {
       let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) || "";
       if (iconName && iconName.length > 0) {
-        let base64 = await downloadImage(
+        let promise = downloadImage(
           `data/img/items/${iconName}.webp`,
           item.icon
-        );
-        mergedItems[key].placeholder = base64;
-        mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+        ).then((placeholder) => {
+          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+          mergedItems[key].placeholder = placeholder;
+          console.log("Downloaded icon for " + key);
+        });
+        itemIconPromises.push(promise);
       }
     }
   });
+  await Promise.all(itemIconPromises);
   console.info("Writing items data to file...");
   writeItems(latestVersion, mergedItems);
 };

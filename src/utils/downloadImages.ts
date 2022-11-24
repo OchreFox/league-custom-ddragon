@@ -28,32 +28,32 @@ export async function downloadImage(
   if (!existsSync("data/img/items")) {
     mkdirSync("data/img/items", { recursive: true });
   }
-  await axios
+  let axiosResponse = await axios
     .get(url, {
       responseType: "arraybuffer",
       headers: {
         "Accept-Encoding": "identity",
       },
     })
-    .then(async (axiosResponse) => {
-      console.log("Saving image " + filename);
-      // Save the image as a file
-      await sharp(axiosResponse.data)
-        .toFile(filename)
-        .catch((err) => {
-          console.error(err);
-        });
-      // Create a placeholder
-      const { data, info } = await sharp(filename)
-        .raw()
-        .ensureAlpha()
-        .toBuffer({ resolveWithObject: true });
-
-      const clamped = new Uint8ClampedArray(data);
-      const blurhash = encode(clamped, info.width, info.height, 4, 4);
-      placeholder = blurhash;
-    })
     .catch((err) => console.error(err));
+  if (axiosResponse) {
+    console.log("Saving image " + filename);
+    // Save the image as a file
+    await sharp(axiosResponse.data)
+      .toFile(filename)
+      .catch((err) => {
+        console.error(err);
+      });
+    // Create a placeholder
+    const { data, info } = await sharp(filename)
+      .raw()
+      .ensureAlpha()
+      .toBuffer({ resolveWithObject: true });
+
+    const clamped = new Uint8ClampedArray(data);
+    const blurhash = encode(clamped, info.width, info.height, 4, 4);
+    placeholder = blurhash;
+  }
 
   return placeholder;
 }
