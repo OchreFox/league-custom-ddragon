@@ -411,6 +411,30 @@ function writeItems(latestVersion, mergedItems) {
   fs.writeFileSync(latestVersionPath, JSON.stringify(mergedItems));
   fs.writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
 }
+function filterPassives(passives) {
+  return passives.map((passive) => {
+    let stats = Object.entries(passive.stats).map(([name, stat]) => {
+      if (Array.isArray(stat)) {
+        return { [name]: stat[0] };
+      } else {
+        return { [name]: stat };
+      }
+    });
+    passive.stats = filterStats(stats);
+    return passive;
+  });
+}
+function getCamelCaseStats(stats) {
+  let camelCaseStats = camelcaseKeys(stats, { deep: true });
+  return _3(camelCaseStats).pickBy(_3.isObject).mapValues((stat) => _3.pickBy(stat, _3.identity)).omitBy(_3.isEmpty).value();
+}
+function filterStats(stats) {
+  if (Array.isArray(stats)) {
+    return getCamelCaseStats(stats[0]);
+  } else {
+    return getCamelCaseStats(stats);
+  }
+}
 function getCommunityDragonItemData(endpointData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysCD = [
@@ -434,22 +458,41 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
     "requiredChampion",
     "simpleDescription",
     "tier",
-    "stats"
+    "stats",
+    "passives",
+    "active"
   ];
   Object.entries(data).forEach(([itemKey, itemValues]) => {
     var _a, _b;
     let filteredItem = _3.pick(itemValues, requiredKeysMeraki);
     let classes = _3.get(itemValues, "shop.tags");
     if (classes.length > 0) {
-      classes = _3.filter(classes, (className) => className in ChampionClass);
+      classes = _3.filter(classes, (className) => {
+        return _3.includes(ChampionClass, className);
+      });
     }
     let stats = _3.get(itemValues, "stats");
     if (stats) {
-      let camelCaseStats = camelcaseKeys(stats, { deep: true });
-      let newStats = _3(camelCaseStats).pickBy(_3.isObject).mapValues((stat) => _3.pickBy(stat, _3.identity)).omitBy(_3.isEmpty).value();
+      let newStats = filterStats(stats);
       if (newStats) {
         data[itemKey].stats = newStats;
         filteredItem.stats = newStats;
+      }
+    }
+    let passives = _3.get(itemValues, "passives");
+    if (passives && passives.length > 0) {
+      let newPassives = filterPassives(passives);
+      if (newPassives) {
+        data[itemKey].passives = newPassives;
+        filteredItem.passives = newPassives;
+      }
+      let mythic = _3.some(passives, (passive) => {
+        return passive.mythic;
+      });
+      if (mythic) {
+        filteredItem.mythic = true;
+      } else {
+        filteredItem.mythic = false;
       }
     }
     if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {

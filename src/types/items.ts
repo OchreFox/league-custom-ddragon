@@ -57,15 +57,6 @@ export enum Category {
   Vision = "Vision",
 }
 
-export enum ChampionClass {
-  Assassin = "ASSASSIN",
-  Fighter = "FIGHTER",
-  Mage = "MAGE",
-  Marksman = "MARKSMAN",
-  Support = "SUPPORT",
-  Tank = "TANK",
-}
-
 export interface Gold {
   base: number;
   purchasable: boolean;
@@ -171,6 +162,7 @@ export interface MerakiItem {
   required_champion?: string;
   required_ally?: string;
   simple_description?: null | string;
+  mythic?: boolean;
 }
 
 export interface Active {
@@ -221,29 +213,38 @@ export enum MerakiTag {
   Tank = "TANK",
 }
 
+export enum ChampionClass {
+  Assassin = "ASSASSIN",
+  Fighter = "FIGHTER",
+  Mage = "MAGE",
+  Marksman = "MARKSMAN",
+  Support = "SUPPORT",
+  Tank = "TANK",
+}
+
 export interface MerakiStats {
   abilityPower?: MerakiStatExtended;
-  armor: MerakiStatExtended;
+  armor?: MerakiStatExtended;
   armorPenetration?: MerakiStatExtended;
-  attackDamage?: MerakiStatExtended;
+  attackDamage?: MerakiStatExtended | MerakiStatExtended[];
   attackSpeed?: MerakiStatTypeBase;
   cooldownReduction?: MerakiStatExtended;
   criticalStrikeChance?: MerakiStatExtended;
   goldPer_10?: MerakiStatTypeBase;
   goldPer10?: MerakiStatTypeBase;
   healAndShieldPower?: MerakiStatTypeBase;
-  health: MerakiStatExtended;
+  health?: MerakiStatExtended;
   healthRegen?: MerakiStatExtended;
-  lethality: MerakiStatExtended;
-  lifesteal: MerakiStatExtended;
+  lethality?: MerakiStatExtended;
+  lifesteal?: MerakiStatExtended;
   magicPenetration?: MerakiStatExtended;
   magicResistance?: MerakiStatExtended;
-  mana: MerakiStatTypeBase;
+  mana?: MerakiStatTypeBase;
   manaRegen?: MerakiStatExtended;
-  movespeed: MerakiStatExtended;
+  movespeed?: MerakiStatExtended | number;
   abilityHaste?: MerakiStatExtended;
-  omnivamp: MerakiStatTypeBase;
-  tenacity: MerakiStatTypeBase;
+  omnivamp?: MerakiStatTypeBase;
+  tenacity?: MerakiStatTypeBase;
   ability_power?: MerakiStatTypeBase;
   armor_penetration?: MerakiStatExtended;
   attack_damage?: MerakiStatExtended;
@@ -257,7 +258,7 @@ export interface MerakiStats {
   magic_resistance?: MerakiStatTypeBase;
   mana_regen?: MerakiStatExtended;
   ability_haste?: MerakiStatTypeBase;
-  [key: string]: MerakiStatExtended | undefined;
+  [key: string]: MerakiStatExtended | MerakiStatExtended[] | number | undefined;
 }
 
 export interface MerakiStatTypeBase {

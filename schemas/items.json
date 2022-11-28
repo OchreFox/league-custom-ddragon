@@ -84,6 +84,18 @@
         "stats": {
           "$ref": "#/definitions/Stats"
         },
+        "passives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Passive"
+          }
+        },
+        "active": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Active"
+          }
+        },
         "classes": {
           "type": "array",
           "items": {
@@ -227,6 +239,127 @@
       },
       "required": [],
       "title": "Stats"
+    },
+    "PassiveStats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "abilityPower": {
+          "$ref": "#/definitions/AbilityHaste"
+        }
+      },
+      "required": [],
+      "title": "PassiveStats"
+    },
+    "AbilityHaste": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flat": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "flat"
+      ],
+      "title": "AbilityHaste"
+    },
+    "Passive": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unique": {
+          "type": "boolean"
+        },
+        "mythic": {
+          "type": "boolean"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "stats": {
+          "$ref": "#/definitions/PassiveStats"
+        }
+      },
+      "required": [
+        "effects",
+        "mythic",
+        "name",
+        "range",
+        "stats",
+        "unique"
+      ],
+      "title": "Passive"
+    },
+    "Active": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unique": {
+          "type": "boolean"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "effects": {
+          "type": "string"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cooldown": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "cooldown",
+        "effects",
+        "name",
+        "range",
+        "unique"
+      ],
+      "title": "Active"
     },
     "Category": {
       "type": "string",
