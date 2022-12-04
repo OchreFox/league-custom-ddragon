@@ -304,6 +304,19 @@
             }
           ]
         },
+        "cooldown": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
         "stats": {
           "$ref": "#/definitions/PassiveStats"
         }

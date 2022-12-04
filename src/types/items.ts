@@ -178,6 +178,7 @@ export interface Passive {
   mythic: boolean;
   name: null | string;
   effects: null | string;
+  cooldown: null | string;
   range: number | null;
   stats: MerakiStats;
 }

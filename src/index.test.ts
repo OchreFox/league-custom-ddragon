@@ -6,6 +6,7 @@ import { matchers } from "jest-json-schema";
 import { getLatestVersion } from "./utils/getLatestVersion";
 import { EndpointNames, Endpoint } from "./types/global";
 import { getEndpoints, readJsonFile } from "./utils/endpointUtils";
+import { ItemObject } from "./types/items";
 
 expect.extend(matchers);
 // Test to check that the latest version exists in Blitz API
@@ -51,7 +52,7 @@ test("Latest items.json file is created in folders", async () => {
 
 // Test to validate the items.json file schema
 test("Latest items.json file has valid schema", () => {
-  const items = readJsonFile("data/latest/items.json");
+  const items: ItemObject = readJsonFile("data/latest/items.json");
   const itemsSchema = readJsonFile("schemas/items.json");
   // @ts-ignore
   expect(items).toMatchSchema(itemsSchema);
@@ -62,4 +63,13 @@ test("Latest champions.json file is created in folders", async () => {
   const latestVersion = await getLatestVersion();
   expect(existsSync(`./data/${latestVersion}/champions.json`)).toBe(true);
   expect(existsSync(`./data/latest/champions.json`)).toBe(true);
+});
+
+// Test to validate that there are any classes in the latest items.json file (there should be at least one item with a class)
+test("Latest items.json file has at least one class", () => {
+  const items: ItemObject = readJsonFile("data/latest/items.json");
+  const itemsWithClass = Object.values(items).filter(
+    (item) => item.classes.length > 0
+  );
+  expect(itemsWithClass.length).toBeGreaterThan(0);
 });

@@ -435,6 +435,15 @@ function filterStats(stats) {
     return getCamelCaseStats(stats);
   }
 }
+function getChampionClasses(itemValues) {
+  let classes = _3.get(itemValues, "shop.tags");
+  if (classes.length > 0) {
+    classes = _3.filter(classes, (className) => {
+      return _3.includes(Object.values(ChampionClass), className);
+    });
+  }
+  return classes;
+}
 function getCommunityDragonItemData(endpointData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysCD = [
@@ -465,12 +474,7 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
   Object.entries(data).forEach(([itemKey, itemValues]) => {
     var _a, _b;
     let filteredItem = _3.pick(itemValues, requiredKeysMeraki);
-    let classes = _3.get(itemValues, "shop.tags");
-    if (classes.length > 0) {
-      classes = _3.filter(classes, (className) => {
-        return _3.includes(ChampionClass, className);
-      });
-    }
+    let classes = getChampionClasses(itemValues);
     let stats = _3.get(itemValues, "stats");
     if (stats) {
       let newStats = filterStats(stats);

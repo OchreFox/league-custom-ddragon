@@ -63,6 +63,17 @@ function filterStats(stats: MerakiStats | MerakiStats[]) {
   }
 }
 
+function getChampionClasses(itemValues: MerakiItem) {
+  let classes = _.get(itemValues, "shop.tags");
+  if (classes.length > 0) {
+    // Filter class names that are defined in the ChampionClass enum
+    classes = _.filter(classes, (className: MerakiTag | ChampionClass) => {
+      return _.includes(Object.values(ChampionClass), className);
+    });
+  }
+  return classes;
+}
+
 export function getCommunityDragonItemData(
   endpointData: EndpointItemData,
   mergedItems: { [x: string]: any }
@@ -104,13 +115,7 @@ export function getMerakiItemData(
   Object.entries(data).forEach(([itemKey, itemValues]) => {
     let filteredItem = _.pick(itemValues, requiredKeysMeraki);
     // Get an array of champion classes from nested object property
-    let classes = _.get(itemValues, "shop.tags");
-    if (classes.length > 0) {
-      // Filter class names that are defined in the ChampionClass enum
-      classes = _.filter(classes, (className: MerakiTag | ChampionClass) => {
-        return _.includes(ChampionClass, className);
-      });
-    }
+    let classes = getChampionClasses(itemValues);
     // Remove empty keys from stats to reduce the size of the json file
     let stats = _.get(itemValues, "stats");
     if (stats) {
