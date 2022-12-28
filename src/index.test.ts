@@ -73,3 +73,10 @@ test("Latest items.json file has at least one class", () => {
   );
   expect(itemsWithClass.length).toBeGreaterThan(0);
 });
+
+// Test to validate that there is at least one item in store in the latest items.json file
+test("Latest items.json file has at least one item in store", () => {
+  const items: ItemObject = readJsonFile("data/latest/items.json");
+  const itemsInStore = Object.values(items).filter((item) => item.inStore);
+  expect(itemsInStore.length).toBeGreaterThan(0);
+});
