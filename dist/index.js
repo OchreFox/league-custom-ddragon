@@ -51,21 +51,43 @@ async function downloadImage(filename, url) {
 // src/utils/getLatestVersion.ts
 import axios2 from "axios";
 var getLatestVersion = async () => {
-  const config = {
-    method: "get",
-    url: "https://ddragon.leagueoflegends.com/api/versions.json",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "Accept-Encoding": "identity"
+  const versionsEndpoints = [
+    {
+      method: "get",
+      url: "https://ddragon.leagueoflegends.com/api/versions.json",
+      name: "DDragon (Riot)"
+    },
+    {
+      method: "get",
+      url: "https://utils.iesdev.com/static/json/lol/riot/versions",
+      name: "Blitz"
     }
-  };
-  const response = await axios2(config).then((response2) => {
-    return response2.data[0];
-  }).catch((error) => {
-    console.log(error);
-  });
-  return response;
+  ];
+  for (const endpoint of versionsEndpoints) {
+    try {
+      console.log(`Getting latest version from ${endpoint.name}...`);
+      const config = {
+        method: endpoint.method,
+        url: endpoint.url,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Accept-Encoding": "identity"
+        }
+      };
+      const response = await axios2(config).then((response2) => {
+        return response2.data[0];
+      }).catch((error) => {
+        throw error;
+      });
+      console.log(`Got latest version from ${endpoint.name}`);
+      return response;
+    } catch (error) {
+      console.error(`Failed to get latest version from ${endpoint.name}`);
+      console.error(error);
+    }
+  }
+  throw new Error("Failed to get latest version");
 };
 
 // endpoints/champions.json
