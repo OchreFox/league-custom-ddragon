@@ -1828,10 +1828,10 @@ expect@^29.0.0, expect@^29.3.1:
     jest-message-util "^29.3.1"
     jest-util "^29.3.1"
 
-fast-blurhash@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/fast-blurhash/-/fast-blurhash-1.1.1.tgz#f2b548e0758cf378b5752fc258b2a211ee365389"
-  integrity sha512-U3mTWNRE92S4gKARJBbUmEpuYtnet+1BEeUf1qWrUHs54Db4+0aDqI9LBu7doCueFf2SRlfbR89bj+Cm89uw8A==
+fast-blurhash@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/fast-blurhash/-/fast-blurhash-1.1.2.tgz#9bf2c0c5cb0846c6e4b315cb349921eedcfcff3c"
+  integrity sha512-lJVOgYSlahqkRhrKumNx/SGB2F/qS0D1z7xjGYjb5EZJRtlzySGMniZjkQ9h9Rv8sPmM/V9orEgRiMwazDNH6A==
 
 fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   version "3.1.3"
