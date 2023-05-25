@@ -220,19 +220,27 @@ var mergeChampions = async (endpoints, latestVersion) => {
     }
   });
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
+  let championIconPromises = [];
   for (const key of Object.keys(mergedChampionData)) {
     let icon = mergedChampionData[key].icon;
     if (icon) {
       let iconName = ((_a = icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) || "";
       if (iconName && iconName.length > 0) {
-        mergedChampionData[key].placeholder = await downloadImage(
+        let promise = downloadImage(
           `data/img/champions/${iconName}.webp`,
           icon
-        );
-        mergedChampionData[key].icon = `data/img/champions/${iconName}.webp`;
+        ).then((placeholder) => {
+          mergedChampionData[key].icon = `data/img/champions/${iconName}.webp`;
+          mergedChampionData[key].placeholder = placeholder;
+          console.log(
+            "Downloaded icon for champion " + mergedChampionData[key].name
+          );
+        });
+        championIconPromises.push(promise);
       }
     }
   }
+  await Promise.all(championIconPromises);
   let lightweightChampionData = _.cloneDeep(mergedChampionData);
   Object.keys(lightweightChampionData).forEach((key) => {
     delete lightweightChampionData[key].abilities;

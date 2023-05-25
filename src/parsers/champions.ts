@@ -79,23 +79,29 @@ const mergeChampions = async (endpoints: Endpoint[], latestVersion: string) => {
 
   // Merge mobalytics data with mergedChampionData
   mergedChampionData = _.merge(mergedChampionData, mobalyticsData);
-
+  let championIconPromises: Promise<void>[] = [];
   for (const key of Object.keys(mergedChampionData)) {
     // Save champion images
     let icon = mergedChampionData[key].icon;
     if (icon) {
       let iconName = icon.split("/").pop()?.split(".")[0] || "";
       if (iconName && iconName.length > 0) {
-        // deepcode ignore PrototypePollution: won't fix
-        mergedChampionData[key].placeholder = await downloadImage(
+        let promise = downloadImage(
           `data/img/champions/${iconName}.webp`,
           icon
-        );
-        // deepcode ignore PrototypePollution: won't fix
-        mergedChampionData[key].icon = `data/img/champions/${iconName}.webp`;
+        ).then((placeholder) => {
+          mergedChampionData[key].icon = `data/img/champions/${iconName}.webp`;
+          mergedChampionData[key].placeholder = placeholder;
+          console.log(
+            "Downloaded icon for champion " + mergedChampionData[key].name
+          );
+        });
+        championIconPromises.push(promise);
       }
     }
   }
+
+  await Promise.all(championIconPromises);
 
   // Create a copy of the mergedChampionData
   let lightweightChampionData = _.cloneDeep(mergedChampionData);
