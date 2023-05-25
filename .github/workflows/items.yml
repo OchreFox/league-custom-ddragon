@@ -48,7 +48,7 @@ jobs:
           git config --local user.name "github-actions"
           git add --all
           git commit -m "Auto-generated new files" -a || echo "Nothing to update"
-          echo "::set-output name=push::true"
+          echo "push=true" >> $GITHUB_OUTPUT
         shell: bash
       - name: Push changes to master
         if: steps.commit.outputs.push == 'true' && github.ref == 'refs/heads/main'

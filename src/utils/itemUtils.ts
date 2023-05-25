@@ -99,12 +99,6 @@ export function getCommunityDragonItemData(
   return mergedItems;
 }
 
-export function hasMythicPassive(passives: Passive[]) {
-  return passives.some((passive) => {
-    return passive.mythic;
-  });
-}
-
 export function getMerakiItemData(
   endpointData: EndpointItemData,
   itemEndpointsData: EndpointItemData[],
@@ -145,11 +139,6 @@ export function getMerakiItemData(
       if (newPassives) {
         data[itemKey].passives = newPassives;
         filteredItem.passives = newPassives;
-      }
-      // Check if in any of the passives the mythic property is set to true
-      let mythic = hasMythicPassive(passives);
-      if (mythic) {
-        filteredItem.mythic = true;
       }
     }
 
