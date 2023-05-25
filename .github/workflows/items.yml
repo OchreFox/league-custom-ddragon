@@ -47,7 +47,7 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
           git add --all
-          git commit -m "Auto-generated new files" -a
+          git commit -m "Auto-generated new files" -a || echo "Nothing to update"
           echo "::set-output name=push::true"
         shell: bash
       - name: Push changes to master
