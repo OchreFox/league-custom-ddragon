@@ -20,8 +20,8 @@ export function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m) => m[1].toUpperCase());
 }
 
+// This code writes the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
 export function writeItems(latestVersion: string, mergedItems: {}) {
-  // Write the merged items.json file in the latestVersion folder "./data/" + latestVersion + "/items.json";
   let rootPath = "data/";
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
   latestVersionPath = path.normalize(latestVersionPath);
@@ -30,6 +30,7 @@ export function writeItems(latestVersion: string, mergedItems: {}) {
   fs.writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
 }
 
+// Filter passive stats to remove empty values and flatten the stats object
 function filterPassives(passives: Passive[]) {
   return passives.map((passive: Passive) => {
     // Flatten the stats object to prevent arrays of one object
@@ -45,6 +46,8 @@ function filterPassives(passives: Passive[]) {
   });
 }
 
+// This function camelCases the keys of the stats object
+// while removing all the empty stats.
 function getCamelCaseStats(stats: MerakiStats) {
   let camelCaseStats: MerakiStats = camelcaseKeys(stats, { deep: true });
   // Loop trough each of the stats and filter out entries with value 0
@@ -55,6 +58,7 @@ function getCamelCaseStats(stats: MerakiStats) {
     .value() as MerakiStats;
 }
 
+// This code takes the stats returned by the Meraki API and returns a CamelCase version of the stats in an object.
 function filterStats(stats: MerakiStats | MerakiStats[]) {
   if (Array.isArray(stats)) {
     return getCamelCaseStats(stats[0]);
@@ -63,6 +67,7 @@ function filterStats(stats: MerakiStats | MerakiStats[]) {
   }
 }
 
+// Returns the champion classes of the item. (e.g. "Fighter", "Tank")
 function getChampionClasses(itemValues: MerakiItem) {
   let classes = _.get(itemValues, "shop.tags");
   if (classes.length > 0) {
@@ -94,6 +99,12 @@ export function getCommunityDragonItemData(
   return mergedItems;
 }
 
+export function hasMythicPassive(passives: Passive[]) {
+  return passives.some((passive) => {
+    return passive.mythic;
+  });
+}
+
 export function getMerakiItemData(
   endpointData: EndpointItemData,
   itemEndpointsData: EndpointItemData[],
@@ -120,7 +131,6 @@ export function getMerakiItemData(
     let stats = _.get(itemValues, "stats");
     if (stats) {
       let newStats = filterStats(stats);
-
       if (newStats) {
         data[itemKey].stats = newStats;
         filteredItem.stats = newStats;
@@ -137,14 +147,9 @@ export function getMerakiItemData(
         filteredItem.passives = newPassives;
       }
       // Check if in any of the passives the mythic property is set to true
-      let mythic = _.some(passives, (passive) => {
-        return passive.mythic;
-      });
+      let mythic = hasMythicPassive(passives);
       if (mythic) {
-        // Overwrite the mythic property in the item (because this data is more accurate)
         filteredItem.mythic = true;
-      } else {
-        filteredItem.mythic = false;
       }
     }
 
@@ -184,6 +189,10 @@ export function getMerakiItemData(
   return mergedItems;
 }
 
+export function hasDescriptionMythic(description: string) {
+  return description.includes("RarityMythic");
+}
+
 export function getBlitzItemData(endpoint: EndpointItemData) {
   let { data } = endpoint.data as BlitzRoot;
   // Parse numbers
@@ -203,6 +212,12 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
       } else if (propKey === "stats") {
         // Delete stats from blitzEndpoint
         delete data[key]["stats"];
+      }
+      // Handle description to check if it's a mythic item
+      else if (propKey === "description") {
+        if (hasDescriptionMythic(itemValue)) {
+          data[key]["mythic"] = true;
+        }
       }
     });
   });

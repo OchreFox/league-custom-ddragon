@@ -480,6 +480,11 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
   });
   return mergedItems;
 }
+function hasMythicPassive(passives) {
+  return passives.some((passive) => {
+    return passive.mythic;
+  });
+}
 function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysMeraki = [
@@ -512,13 +517,9 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
         data[itemKey].passives = newPassives;
         filteredItem.passives = newPassives;
       }
-      let mythic = _3.some(passives, (passive) => {
-        return passive.mythic;
-      });
+      let mythic = hasMythicPassive(passives);
       if (mythic) {
         filteredItem.mythic = true;
-      } else {
-        filteredItem.mythic = false;
       }
     }
     if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {
@@ -544,6 +545,9 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
   });
   return mergedItems;
 }
+function hasDescriptionMythic(description) {
+  return description.includes("RarityMythic");
+}
 function getBlitzItemData(endpoint) {
   let { data } = endpoint.data;
   Object.entries(data).forEach(([key, itemData]) => {
@@ -556,6 +560,10 @@ function getBlitzItemData(endpoint) {
         delete data[key]["depth"];
       } else if (propKey === "stats") {
         delete data[key]["stats"];
+      } else if (propKey === "description") {
+        if (hasDescriptionMythic(itemValue)) {
+          data[key]["mythic"] = true;
+        }
       }
     });
   });
