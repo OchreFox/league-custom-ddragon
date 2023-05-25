@@ -40,8 +40,9 @@ jobs:
         run: yarn run start
       - name: Run tests
         run: yarn run test
-      - name: Commit files
+      - name: Commit files only when the branch is main
         id: commit
+        if: github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "github-actions"
@@ -50,7 +51,7 @@ jobs:
           echo "::set-output name=push::true"
         shell: bash
       - name: Push changes to master
-        if: steps.commit.outputs.push == 'true'
+        if: steps.commit.outputs.push == 'true' && github.ref == 'refs/heads/main'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

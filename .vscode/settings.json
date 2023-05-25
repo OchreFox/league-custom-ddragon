@@ -11,5 +11,9 @@
     "mobalytics",
     "Plaiceholder",
     "waveclear"
-  ]
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "league-builds-gui",
+    "projectKey": "OchreFox_league-custom-ddragon"
+  }
 }
