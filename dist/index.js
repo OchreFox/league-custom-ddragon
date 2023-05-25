@@ -480,11 +480,6 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
   });
   return mergedItems;
 }
-function hasMythicPassive(passives) {
-  return passives.some((passive) => {
-    return passive.mythic;
-  });
-}
 function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysMeraki = [
@@ -516,10 +511,6 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
       if (newPassives) {
         data[itemKey].passives = newPassives;
         filteredItem.passives = newPassives;
-      }
-      let mythic = hasMythicPassive(passives);
-      if (mythic) {
-        filteredItem.mythic = true;
       }
     }
     if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {
