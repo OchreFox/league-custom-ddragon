@@ -611,7 +611,8 @@ var defaultValues = {
   requiredChampion: "",
   simpleDescription: "",
   stats: {},
-  tier: 0
+  tier: 0,
+  type: []
 };
 
 // src/parsers/items.ts
