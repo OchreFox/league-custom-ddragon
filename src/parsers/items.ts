@@ -8,43 +8,49 @@ import {
   getMerakiItemData,
   getBlitzItemData,
   writeItems,
+  getLeagueOfLegendsWikiItemData,
 } from "~/src/utils/itemUtils.js";
 import { defaultValues } from "~/src/utils/constants.js";
 import { downloadImage } from "~/src/utils/downloadImages.js";
 // Load env variables from .env file
 import "dotenv/config";
 import { Endpoint, EndpointItemData } from "~/src/types/global.js";
-import { ItemObject } from "~/src/types/items.js";
+import { Item, ItemObject } from "~/src/types/items.js";
 import itemsConfig from "~/endpoints/items.json";
-import { getEndpoints, getEndpointUrl } from "../utils/endpointUtils.js";
+import {
+  createDirectory,
+  getEndpoints,
+  getEndpointUrl,
+} from "~/src/utils/endpointUtils.js";
 
+// Main function to merge the items from the different endpoints
 const mergeItems = async (
   endpoints: Endpoint[],
   latestVersion: string
 ): Promise<void> => {
-  let itemEndpointsData: EndpointItemData[] = [];
+  let fetchedItemData: EndpointItemData[] = [];
   let itemPromises: Promise<void>[] = [];
 
+  // Fetch all the items from the different endpoints
   endpoints.forEach((endpoint) => {
     console.log(`Fetching ${endpoint.name} items...`);
     let promise = axios
       .get(endpoint.url, {
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
           "Accept-Encoding": "identity",
         },
       })
       .then((response) => {
         console.log(`Fetched ${endpoint.name} items`);
-        itemEndpointsData.push({ name: endpoint.name, data: response.data });
+        fetchedItemData.push({ name: endpoint.name, data: response.data });
       });
     itemPromises.push(promise);
   });
   await Promise.all(itemPromises);
 
+  // Merge the items from the different endpoints
   let mergedItems: ItemObject = {};
-  itemEndpointsData.forEach((endpointData) => {
+  fetchedItemData.forEach((endpointData) => {
     switch (endpointData.name) {
       case "Blitz":
         Object.assign(mergedItems, getBlitzItemData(endpointData));
@@ -53,13 +59,17 @@ const mergeItems = async (
       case "MerakiAnalytics":
         mergedItems = getMerakiItemData(
           endpointData,
-          itemEndpointsData,
+          fetchedItemData,
           mergedItems
         );
         break;
 
       case "CommunityDragon":
         mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
+        break;
+
+      case "LeagueOfLegendsWiki":
+        mergedItems = getLeagueOfLegendsWikiItemData(endpointData, mergedItems);
         break;
     }
   });
@@ -71,24 +81,30 @@ const mergeItems = async (
 
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
 
-  // Sanitize item description for each item in mergedItems
   let itemIconPromises: Promise<void>[] = [];
 
-  Object.entries(mergedItems).forEach(async ([key, item]) => {
+  // Download item icons and placeholders
+  Object.entries(mergedItems).forEach(([key, item]: [string, Item]) => {
     if (item.description) {
       mergedItems[key].description = sanitizeText(item);
     }
     if (item.icon) {
-      let iconName = item.icon.split("/").pop()?.split(".")[0] || "";
+      let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
       if (iconName && iconName.length > 0) {
         let promise = downloadImage(
           `data/img/items/${iconName}.webp`,
           item.icon
-        ).then((placeholder) => {
-          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
-          mergedItems[key].placeholder = placeholder;
-          console.log("Downloaded icon for item " + mergedItems[key].name);
-        });
+        )
+          .then((placeholder: string) => {
+            mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+            mergedItems[key].placeholder = placeholder;
+            console.log("Downloaded icon for item " + mergedItems[key].name);
+          })
+          .catch((error) => {
+            console.error(
+              "Error downloading icon for item " + mergedItems[key].name
+            );
+          });
         itemIconPromises.push(promise);
       }
     }
@@ -106,14 +122,10 @@ export const getItems = async () => {
   const latestVersion = await getLatestVersion();
   let endpoints = getEndpoints(itemsConfig, latestVersion);
   console.log("Endpoints: ", endpoints);
-  // Create a folder in /data if it doesn't exist for the latest version
-  if (!existsSync(`data/${latestVersion}`)) {
-    mkdirSync(`data/${latestVersion}`);
-  }
-  // Create the folder latest in /data if it doesn't exist
-  if (!existsSync(`data/latest`)) {
-    mkdirSync(`data/latest`);
-  }
+
+  // Create the data directory if it doesn't exist for the current patch
+  createDirectory(`data/${latestVersion}`);
+  createDirectory("data/latest");
   await mergeItems(endpoints, latestVersion);
 };
 

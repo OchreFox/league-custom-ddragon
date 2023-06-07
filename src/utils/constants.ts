@@ -20,4 +20,5 @@ export const defaultValues = {
   simpleDescription: "",
   stats: {},
   tier: 0,
+  type: [],
 };

@@ -1,9 +1,9 @@
 import sharp from "sharp";
-import { existsSync, mkdirSync } from "fs";
 import axios from "axios";
 import { encode } from "blurhash";
 
 import { blurHashToDataURL } from "./blurhashDataURL.js";
+import { createDirectory } from "./endpointUtils.js";
 
 /**
  * &gt;&gt;&gt; downloadImage("data/img/items/image.png", "http://www.example.com/image.png")
@@ -22,12 +22,9 @@ export async function downloadImage(
   let placeholder = "";
 
   // Create folders
-  if (!existsSync("data/img/champions")) {
-    mkdirSync("data/img/champions", { recursive: true });
-  }
-  if (!existsSync("data/img/items")) {
-    mkdirSync("data/img/items", { recursive: true });
-  }
+  createDirectory("data/img/champions", true);
+  createDirectory("data/img/items", true);
+
   let axiosResponse = await axios
     .get(url, {
       responseType: "arraybuffer",
@@ -36,9 +33,10 @@ export async function downloadImage(
       },
     })
     .catch((err) => console.error(err));
+
+  // Save the image as a file
   if (axiosResponse) {
     console.log("Saving image " + filename);
-    // Save the image as a file
     await sharp(axiosResponse.data)
       .toFile(filename)
       .catch((err) => {

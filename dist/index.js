@@ -9,12 +9,34 @@ import "dotenv/config";
 
 // src/utils/downloadImages.ts
 import sharp from "sharp";
-import { existsSync, mkdirSync } from "fs";
 import axios from "axios";
 import { encode } from "blurhash";
 
 // src/utils/blurhashDataURL.ts
 import { decodeBlurHash } from "fast-blurhash";
+
+// src/utils/endpointUtils.ts
+import { existsSync, mkdirSync, readFileSync } from "fs";
+var getEndpointUrl = (endpoint, version) => {
+  if (!version) {
+    throw new Error("Version is undefined");
+  }
+  return `${endpoint.baseUrl}${endpoint.needsLatest ? version : ""}${endpoint.resource}`;
+};
+var getEndpoints = (endpoints, version) => {
+  if (!version) {
+    throw new Error("Version is undefined");
+  }
+  return endpoints.map((endpoint) => ({
+    name: endpoint.name,
+    url: getEndpointUrl(endpoint, version)
+  }));
+};
+var createDirectory = (path2, recursive = false) => {
+  if (!existsSync(path2)) {
+    mkdirSync(path2, { recursive });
+  }
+};
 
 // src/utils/downloadImages.ts
 async function downloadImage(filename, url) {
@@ -23,12 +45,8 @@ async function downloadImage(filename, url) {
     return "";
   }
   let placeholder = "";
-  if (!existsSync("data/img/champions")) {
-    mkdirSync("data/img/champions", { recursive: true });
-  }
-  if (!existsSync("data/img/items")) {
-    mkdirSync("data/img/items", { recursive: true });
-  }
+  createDirectory("data/img/champions", true);
+  createDirectory("data/img/items", true);
   let axiosResponse = await axios.get(url, {
     responseType: "arraybuffer",
     headers: {
@@ -157,23 +175,6 @@ var queryString = {
   variables: {}
 };
 
-// src/utils/endpointUtils.ts
-var getEndpointUrl = (endpoint, version) => {
-  if (!version) {
-    throw new Error("Version is undefined");
-  }
-  return `${endpoint.baseUrl}${endpoint.needsLatest ? version : ""}${endpoint.resource}`;
-};
-var getEndpoints = (endpoints, version) => {
-  if (!version) {
-    throw new Error("Version is undefined");
-  }
-  return endpoints.map((endpoint) => ({
-    name: endpoint.name,
-    url: getEndpointUrl(endpoint, version)
-  }));
-};
-
 // src/parsers/champions.ts
 var mergeChampions = async (endpoints, latestVersion) => {
   var _a;
@@ -282,7 +283,6 @@ async function getChampions() {
 // src/parsers/items.ts
 import axios4 from "axios";
 import _4 from "lodash";
-import { existsSync as existsSync3, mkdirSync as mkdirSync3 } from "fs";
 
 // src/utils/sanitizeText.ts
 import _2 from "lodash";
@@ -434,6 +434,9 @@ var ChampionClass = /* @__PURE__ */ ((ChampionClass2) => {
 
 // src/utils/itemUtils.ts
 import camelcaseKeys from "camelcase-keys";
+import DOMPurify2 from "isomorphic-dompurify";
+import { JSDOM } from "jsdom";
+import LuaJSON from "lua-json";
 function writeItems(latestVersion, mergedItems) {
   let rootPath = "data/";
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
@@ -488,7 +491,7 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
   });
   return mergedItems;
 }
-function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
+function getMerakiItemData(endpointData, fetchedItemData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysMeraki = [
     "icon",
@@ -522,7 +525,7 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
       }
     }
     if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {
-      const CDragonData = (_a = itemEndpointsData.find(
+      const CDragonData = (_a = fetchedItemData.find(
         (endpoint) => endpoint.name === "CommunityDragon" /* CommunityDragon */
       )) == null ? void 0 : _a.data;
       let CDragonIconPath = (_b = CDragonData.find(
@@ -544,9 +547,6 @@ function getMerakiItemData(endpointData, itemEndpointsData, mergedItems) {
   });
   return mergedItems;
 }
-function hasDescriptionMythic(description) {
-  return description.includes("RarityMythic");
-}
 function getBlitzItemData(endpoint) {
   let { data } = endpoint.data;
   Object.entries(data).forEach(([key, itemData]) => {
@@ -559,14 +559,35 @@ function getBlitzItemData(endpoint) {
         delete data[key]["depth"];
       } else if (propKey === "stats") {
         delete data[key]["stats"];
-      } else if (propKey === "description") {
-        if (hasDescriptionMythic(itemValue)) {
-          data[key]["mythic"] = true;
-        }
+      } else if (propKey === "mythic") {
+        data[key]["mythic"] = itemValue;
       }
     });
   });
   return data;
+}
+function getLeagueOfLegendsWikiItemData(endpointData, mergedItems) {
+  var _a, _b;
+  const cleanHTML = DOMPurify2.sanitize(endpointData.data);
+  const dom = new JSDOM(cleanHTML);
+  const document = dom.window.document;
+  const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
+  const itemDataElement = document.querySelector(itemDataSelector);
+  let itemDataString = (_b = (_a = itemDataElement == null ? void 0 : itemDataElement.textContent) == null ? void 0 : _a.match(/return.*\n(.*)\n}/s)) == null ? void 0 : _b[0];
+  const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
+  const itemDataArray = Object.entries(itemDataJSON).map(([key, value]) => {
+    return {
+      name: key,
+      ...value
+    };
+  });
+  itemDataArray.forEach((item) => {
+    const key = item.id;
+    if (mergedItems[key]) {
+      mergedItems[key] = { ...mergedItems[key], type: item.type };
+    }
+  });
+  return mergedItems;
 }
 
 // src/utils/constants.ts
@@ -615,30 +636,34 @@ var items_default = [
     baseUrl: "https://raw.communitydragon.org/latest",
     resource: "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
     needsLatest: false
+  },
+  {
+    name: "LeagueOfLegendsWiki",
+    baseUrl: "https://leagueoflegends.fandom.com/wiki",
+    resource: "/Module:ItemData/data",
+    needsLatest: false
   }
 ];
 
 // src/parsers/items.ts
 var mergeItems = async (endpoints, latestVersion) => {
-  let itemEndpointsData = [];
+  let fetchedItemData = [];
   let itemPromises = [];
   endpoints.forEach((endpoint) => {
     console.log(`Fetching ${endpoint.name} items...`);
     let promise = axios4.get(endpoint.url, {
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
         "Accept-Encoding": "identity"
       }
     }).then((response) => {
       console.log(`Fetched ${endpoint.name} items`);
-      itemEndpointsData.push({ name: endpoint.name, data: response.data });
+      fetchedItemData.push({ name: endpoint.name, data: response.data });
     });
     itemPromises.push(promise);
   });
   await Promise.all(itemPromises);
   let mergedItems = {};
-  itemEndpointsData.forEach((endpointData) => {
+  fetchedItemData.forEach((endpointData) => {
     switch (endpointData.name) {
       case "Blitz":
         Object.assign(mergedItems, getBlitzItemData(endpointData));
@@ -646,12 +671,15 @@ var mergeItems = async (endpoints, latestVersion) => {
       case "MerakiAnalytics":
         mergedItems = getMerakiItemData(
           endpointData,
-          itemEndpointsData,
+          fetchedItemData,
           mergedItems
         );
         break;
       case "CommunityDragon":
         mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
+        break;
+      case "LeagueOfLegendsWiki":
+        mergedItems = getLeagueOfLegendsWikiItemData(endpointData, mergedItems);
         break;
     }
   });
@@ -660,13 +688,13 @@ var mergeItems = async (endpoints, latestVersion) => {
   });
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
   let itemIconPromises = [];
-  Object.entries(mergedItems).forEach(async ([key, item]) => {
+  Object.entries(mergedItems).forEach(([key, item]) => {
     var _a;
     if (item.description) {
       mergedItems[key].description = sanitizeText(item);
     }
     if (item.icon) {
-      let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) || "";
+      let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) ?? "";
       if (iconName && iconName.length > 0) {
         let promise = downloadImage(
           `data/img/items/${iconName}.webp`,
@@ -675,6 +703,10 @@ var mergeItems = async (endpoints, latestVersion) => {
           mergedItems[key].icon = `data/img/items/${iconName}.webp`;
           mergedItems[key].placeholder = placeholder;
           console.log("Downloaded icon for item " + mergedItems[key].name);
+        }).catch((error) => {
+          console.error(
+            "Error downloading icon for item " + mergedItems[key].name
+          );
         });
         itemIconPromises.push(promise);
       }
@@ -688,12 +720,8 @@ var getItems = async () => {
   const latestVersion = await getLatestVersion();
   let endpoints = getEndpoints(items_default, latestVersion);
   console.log("Endpoints: ", endpoints);
-  if (!existsSync3(`data/${latestVersion}`)) {
-    mkdirSync3(`data/${latestVersion}`);
-  }
-  if (!existsSync3(`data/latest`)) {
-    mkdirSync3(`data/latest`);
-  }
+  createDirectory(`data/${latestVersion}`);
+  createDirectory("data/latest");
   await mergeItems(endpoints, latestVersion);
 };
 
@@ -705,5 +733,5 @@ var main = async () => {
   info("Successfully merged champions.json\n");
   info("Successfully generated custom files.");
 };
-main();
+await main();
 //# sourceMappingURL=index.js.map

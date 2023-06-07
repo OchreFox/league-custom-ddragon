@@ -14,7 +14,7 @@ export interface Endpoint {
 
 export interface EndpointItemData {
   name: EndpointNames | string;
-  data: BlitzRoot | MerakiItemObject | CommunityDragonItem[];
+  data: BlitzRoot | MerakiItemObject | CommunityDragonItem[] | string;
 }
 
 export interface EndpointChampionData {

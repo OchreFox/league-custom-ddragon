@@ -44,6 +44,9 @@
         "mythic": {
           "type": "boolean"
         },
+        "type": {
+          "$ref": "#/definitions/TypeUnion"
+        },
         "icon": {
           "type": "string",
           "qt-uri-protocols": [
@@ -374,6 +377,20 @@
       ],
       "title": "Active"
     },
+    "TypeUnion": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TypeElement"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "TypeUnion"
+    },
     "Category": {
       "type": "string",
       "enum": [
@@ -432,6 +449,24 @@
         "Gangplank"
       ],
       "title": "RequiredChampion"
+    },
+    "TypeElement": {
+      "type": "string",
+      "enum": [
+        "Boots",
+        "Distributed",
+        "Basic",
+        "Epic",
+        "Legendary",
+        "Starter",
+        "Turret",
+        "Minion",
+        "Potion",
+        "Trinket",
+        "Consumable",
+        "Mythic"
+      ],
+      "title": "TypeElement"
     }
   }
 }

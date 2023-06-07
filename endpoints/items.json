@@ -16,5 +16,11 @@
     "baseUrl": "https://raw.communitydragon.org/latest",
     "resource": "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
     "needsLatest": false
+  },
+  {
+    "name": "LeagueOfLegendsWiki",
+    "baseUrl": "https://leagueoflegends.fandom.com/wiki",
+    "resource": "/Module:ItemData/data",
+    "needsLatest": false
   }
 ]

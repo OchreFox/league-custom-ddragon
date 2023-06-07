@@ -14,6 +14,9 @@ import {
   Passive,
 } from "~/src/types/items.js";
 import camelcaseKeys from "camelcase-keys";
+import DOMPurify from "isomorphic-dompurify";
+import { JSDOM } from "jsdom";
+import LuaJSON from "lua-json";
 
 // Function to convert a string from snake case to camel case
 export function snakeToCamel(str: string) {
@@ -101,7 +104,7 @@ export function getCommunityDragonItemData(
 
 export function getMerakiItemData(
   endpointData: EndpointItemData,
-  itemEndpointsData: EndpointItemData[],
+  fetchedItemData: EndpointItemData[],
   mergedItems: { [x: string]: any }
 ) {
   let { data } = endpointData as { data: MerakiItemObject };
@@ -147,7 +150,7 @@ export function getMerakiItemData(
       !filteredItem.icon ||
       (filteredItem.icon && !filteredItem.icon.startsWith("http"))
     ) {
-      const CDragonData = itemEndpointsData.find(
+      const CDragonData = fetchedItemData.find(
         (endpoint) => endpoint.name === EndpointNames.CommunityDragon
       )?.data as CommunityDragonItem[];
       let CDragonIconPath = CDragonData.find(
@@ -178,10 +181,6 @@ export function getMerakiItemData(
   return mergedItems;
 }
 
-export function hasDescriptionMythic(description: string) {
-  return description.includes("RarityMythic");
-}
-
 export function getBlitzItemData(endpoint: EndpointItemData) {
   let { data } = endpoint.data as BlitzRoot;
   // Parse numbers
@@ -203,12 +202,56 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
         delete data[key]["stats"];
       }
       // Handle description to check if it's a mythic item
-      else if (propKey === "description") {
-        if (hasDescriptionMythic(itemValue)) {
-          data[key]["mythic"] = true;
-        }
+      else if (propKey === "mythic") {
+        data[key]["mythic"] = itemValue;
       }
     });
   });
   return data;
+}
+
+export function getLeagueOfLegendsWikiItemData(
+  endpointData: EndpointItemData,
+  mergedItems: { [x: string]: any }
+) {
+  // Endpoint data is an HTML string, sanitize it with DOMPurify
+  const cleanHTML = DOMPurify.sanitize(endpointData.data as string);
+
+  // Parse the HTML string using JSDOM
+  const dom = new JSDOM(cleanHTML);
+  const document = dom.window.document;
+
+  // Get the element with the item data
+  const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
+  const itemDataElement = document.querySelector(itemDataSelector);
+
+  // Remove everything before the first "return" and after the last "}"
+  let itemDataString =
+    itemDataElement?.textContent?.match(/return.*\n(.*)\n}/s)?.[0];
+
+  // Convert the Lua table to JSON
+  const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
+
+  // Convert the JSON to an array of items
+  const itemDataArray = Object.entries(itemDataJSON).map(([key, value]) => {
+    return {
+      name: key,
+      ...value,
+    };
+  });
+
+  // Loop through each item in the LeagueOfLegendsWiki endpoint and merge the following keys with the existing item:
+  // - type: Array of strings
+
+  itemDataArray.forEach((item) => {
+    // Set key as the item id
+    const key = item.id;
+
+    // Append the filteredItem to the mergedItems in the corresponding key
+    if (mergedItems[key]) {
+      mergedItems[key] = { ...mergedItems[key], type: item.type };
+    }
+  });
+
+  return mergedItems;
 }
