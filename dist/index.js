@@ -487,6 +487,12 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
   data.forEach((item) => {
     const key = item.id;
     let filteredItem = _3.pick(item, requiredKeysCD);
+    let CDragonIconPath = item.iconPath.split("Icons2D/")[1].toLowerCase();
+    if (mergedItems[key]) {
+      mergedItems[key].icon = "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" + CDragonIconPath;
+    } else {
+      console.log("Item " + key + " not found in mergedItems");
+    }
     mergedItems[key] = { ...mergedItems[key], ...filteredItem };
   });
   return mergedItems;
@@ -494,7 +500,6 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
 function getMerakiItemData(endpointData, fetchedItemData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysMeraki = [
-    "icon",
     "iconOverlay",
     "nicknames",
     "requiredChampion",
@@ -505,7 +510,6 @@ function getMerakiItemData(endpointData, fetchedItemData, mergedItems) {
     "active"
   ];
   Object.entries(data).forEach(([itemKey, itemValues]) => {
-    var _a, _b;
     let filteredItem = _3.pick(itemValues, requiredKeysMeraki);
     let classes = getChampionClasses(itemValues);
     let stats = _3.get(itemValues, "stats");
@@ -522,21 +526,6 @@ function getMerakiItemData(endpointData, fetchedItemData, mergedItems) {
       if (newPassives) {
         data[itemKey].passives = newPassives;
         filteredItem.passives = newPassives;
-      }
-    }
-    if (!filteredItem.icon || filteredItem.icon && !filteredItem.icon.startsWith("http")) {
-      const CDragonData = (_a = fetchedItemData.find(
-        (endpoint) => endpoint.name === "CommunityDragon" /* CommunityDragon */
-      )) == null ? void 0 : _a.data;
-      let CDragonIconPath = (_b = CDragonData.find(
-        (item) => item.id === itemValues.id
-      )) == null ? void 0 : _b.iconPath;
-      if (CDragonIconPath) {
-        CDragonIconPath = CDragonIconPath.split("Icons2D/")[1].toLowerCase();
-        filteredItem.icon = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/" + CDragonIconPath;
-        console.warn(
-          `Item ${itemValues.name}-${itemValues.id} has an invalid icon URL, using fallback icon`
-        );
       }
     }
     mergedItems[itemKey] = {
@@ -567,13 +556,12 @@ function getBlitzItemData(endpoint) {
   return data;
 }
 function getLeagueOfLegendsWikiItemData(endpointData, mergedItems) {
-  var _a, _b;
   const cleanHTML = DOMPurify2.sanitize(endpointData.data);
   const dom = new JSDOM(cleanHTML);
   const document = dom.window.document;
   const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
   const itemDataElement = document.querySelector(itemDataSelector);
-  let itemDataString = (_b = (_a = itemDataElement == null ? void 0 : itemDataElement.textContent) == null ? void 0 : _a.match(/return.*\n(.*)\n}/s)) == null ? void 0 : _b[0];
+  const itemDataString = itemDataElement == null ? void 0 : itemDataElement.textContent;
   const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
   const itemDataArray = Object.entries(itemDataJSON).map(([key, value]) => {
     return {
@@ -611,7 +599,8 @@ var defaultValues = {
   requiredChampion: "",
   simpleDescription: "",
   stats: {},
-  tier: 0
+  tier: 0,
+  type: []
 };
 
 // src/parsers/items.ts
@@ -693,23 +682,18 @@ var mergeItems = async (endpoints, latestVersion) => {
     if (item.description) {
       mergedItems[key].description = sanitizeText(item);
     }
-    if (item.icon) {
-      let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) ?? "";
-      if (iconName && iconName.length > 0) {
-        let promise = downloadImage(
-          `data/img/items/${iconName}.webp`,
-          item.icon
-        ).then((placeholder) => {
-          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
-          mergedItems[key].placeholder = placeholder;
-          console.log("Downloaded icon for item " + mergedItems[key].name);
-        }).catch((error) => {
-          console.error(
-            "Error downloading icon for item " + mergedItems[key].name
-          );
-        });
-        itemIconPromises.push(promise);
-      }
+    let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) ?? "";
+    if (iconName && iconName.length > 0) {
+      let promise = downloadImage(`data/img/items/${iconName}.webp`, item.icon).then((placeholder) => {
+        mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+        mergedItems[key].placeholder = placeholder;
+        console.log("Downloaded icon for item " + mergedItems[key].name);
+      }).catch((error) => {
+        console.error(
+          `Error downloading icon for item ${item.name}: ${error}`
+        );
+      });
+      itemIconPromises.push(promise);
     }
   });
   await Promise.all(itemIconPromises);

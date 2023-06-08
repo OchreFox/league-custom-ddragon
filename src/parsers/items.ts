@@ -1,6 +1,5 @@
 import axios from "axios";
 import _ from "lodash";
-import { existsSync, mkdirSync } from "fs";
 import { getLatestVersion } from "~/src/utils/getLatestVersion.js";
 import { sanitizeText } from "~/src/utils/sanitizeText.js";
 import {
@@ -17,11 +16,7 @@ import "dotenv/config";
 import { Endpoint, EndpointItemData } from "~/src/types/global.js";
 import { Item, ItemObject } from "~/src/types/items.js";
 import itemsConfig from "~/endpoints/items.json";
-import {
-  createDirectory,
-  getEndpoints,
-  getEndpointUrl,
-} from "~/src/utils/endpointUtils.js";
+import { createDirectory, getEndpoints } from "~/src/utils/endpointUtils.js";
 
 // Main function to merge the items from the different endpoints
 const mergeItems = async (
@@ -57,11 +52,7 @@ const mergeItems = async (
         break;
 
       case "MerakiAnalytics":
-        mergedItems = getMerakiItemData(
-          endpointData,
-          fetchedItemData,
-          mergedItems
-        );
+        mergedItems = getMerakiItemData(endpointData, mergedItems);
         break;
 
       case "CommunityDragon":
@@ -88,25 +79,20 @@ const mergeItems = async (
     if (item.description) {
       mergedItems[key].description = sanitizeText(item);
     }
-    if (item.icon) {
-      let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
-      if (iconName && iconName.length > 0) {
-        let promise = downloadImage(
-          `data/img/items/${iconName}.webp`,
-          item.icon
-        )
-          .then((placeholder: string) => {
-            mergedItems[key].icon = `data/img/items/${iconName}.webp`;
-            mergedItems[key].placeholder = placeholder;
-            console.log("Downloaded icon for item " + mergedItems[key].name);
-          })
-          .catch((error) => {
-            console.error(
-              "Error downloading icon for item " + mergedItems[key].name
-            );
-          });
-        itemIconPromises.push(promise);
-      }
+    let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
+    if (iconName && iconName.length > 0) {
+      let promise = downloadImage(`data/img/items/${iconName}.webp`, item.icon)
+        .then((placeholder: string) => {
+          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
+          mergedItems[key].placeholder = placeholder;
+          console.log("Downloaded icon for item " + mergedItems[key].name);
+        })
+        .catch((error) => {
+          console.error(
+            `Error downloading icon for item ${item.name}: ${error}`
+          );
+        });
+      itemIconPromises.push(promise);
     }
   });
 

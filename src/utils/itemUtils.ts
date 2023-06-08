@@ -1,14 +1,13 @@
 import path from "path";
 import fs from "fs";
 import _ from "lodash";
-import { EndpointItemData, EndpointNames } from "~/src/types/global.js";
+import { EndpointItemData } from "~/src/types/global.js";
 import {
   BlitzRoot,
   ChampionClass,
   CommunityDragonItem,
   MerakiItem,
   MerakiItemObject,
-  MerakiStatExtended,
   MerakiStats,
   MerakiTag,
   Passive,
@@ -92,11 +91,24 @@ export function getCommunityDragonItemData(
     "inStore",
     "maxStacks",
   ];
+
   data.forEach((item) => {
     const key = item.id;
     let filteredItem = _.pick(item, requiredKeysCD);
-    // Append the filteredItem to the mergedItems in the corresponding key
-    mergedItems[key] = { ...mergedItems[key], ...filteredItem };
+
+    // Strip text after Icons2d/ from the icon path
+    let CDragonIconPath = item.iconPath.split("Icons2D/")[1].toLowerCase();
+    if (mergedItems[key]) {
+      // Set icon
+      mergedItems[key].icon =
+        "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" +
+        CDragonIconPath;
+
+      // Append the filteredItem to the mergedItems in the corresponding key
+      mergedItems[key] = { ...mergedItems[key], ...filteredItem };
+    } else {
+      console.log("Item " + key + " not found in mergedItems");
+    }
   });
 
   return mergedItems;
@@ -104,12 +116,10 @@ export function getCommunityDragonItemData(
 
 export function getMerakiItemData(
   endpointData: EndpointItemData,
-  fetchedItemData: EndpointItemData[],
   mergedItems: { [x: string]: any }
 ) {
   let { data } = endpointData as { data: MerakiItemObject };
   const requiredKeysMeraki: (keyof MerakiItem)[] = [
-    "icon",
     "iconOverlay",
     "nicknames",
     "requiredChampion",
@@ -145,31 +155,6 @@ export function getMerakiItemData(
       }
     }
 
-    // Validate that the icon is a valid URL
-    if (
-      !filteredItem.icon ||
-      (filteredItem.icon && !filteredItem.icon.startsWith("http"))
-    ) {
-      const CDragonData = fetchedItemData.find(
-        (endpoint) => endpoint.name === EndpointNames.CommunityDragon
-      )?.data as CommunityDragonItem[];
-      let CDragonIconPath = CDragonData.find(
-        (item) => item.id === itemValues.id
-      )?.iconPath;
-
-      if (CDragonIconPath) {
-        // Strip text after Icons2d/ from the icon path
-        CDragonIconPath = CDragonIconPath.split("Icons2D/")[1].toLowerCase();
-        // Set fallback icon if the icon is not a valid URL
-        filteredItem.icon =
-          "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/assets/items/icons2d/" +
-          CDragonIconPath;
-
-        console.warn(
-          `Item ${itemValues.name}-${itemValues.id} has an invalid icon URL, using fallback icon`
-        );
-      }
-    }
     // Append the filteredItem and the classes to the mergedItems in the corresponding key
     mergedItems[itemKey] = {
       ...mergedItems[itemKey],
@@ -224,10 +209,7 @@ export function getLeagueOfLegendsWikiItemData(
   // Get the element with the item data
   const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
   const itemDataElement = document.querySelector(itemDataSelector);
-
-  // Remove everything before the first "return" and after the last "}"
-  let itemDataString =
-    itemDataElement?.textContent?.match(/return.*\n(.*)\n}/s)?.[0];
+  const itemDataString = itemDataElement?.textContent;
 
   // Convert the Lua table to JSON
   const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
