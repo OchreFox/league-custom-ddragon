@@ -490,14 +490,14 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
     let CDragonIconPath = item.iconPath.split("Icons2D/")[1].toLowerCase();
     if (mergedItems[key]) {
       mergedItems[key].icon = "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" + CDragonIconPath;
+      mergedItems[key] = { ...mergedItems[key], ...filteredItem };
     } else {
       console.log("Item " + key + " not found in mergedItems");
     }
-    mergedItems[key] = { ...mergedItems[key], ...filteredItem };
   });
   return mergedItems;
 }
-function getMerakiItemData(endpointData, fetchedItemData, mergedItems) {
+function getMerakiItemData(endpointData, mergedItems) {
   let { data } = endpointData;
   const requiredKeysMeraki = [
     "iconOverlay",
@@ -658,11 +658,7 @@ var mergeItems = async (endpoints, latestVersion) => {
         Object.assign(mergedItems, getBlitzItemData(endpointData));
         break;
       case "MerakiAnalytics":
-        mergedItems = getMerakiItemData(
-          endpointData,
-          fetchedItemData,
-          mergedItems
-        );
+        mergedItems = getMerakiItemData(endpointData, mergedItems);
         break;
       case "CommunityDragon":
         mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
