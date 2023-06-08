@@ -180,6 +180,7 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
         data[key][propKey] = itemValue.map(Number);
       } else if (propKey === "depth") {
         data[key]["tier"] = parseInt(itemValue, 10);
+        delete data[key]["depth"];
       } else if (propKey === "stats") {
         // Delete stats from blitzEndpoint
         delete data[key]["stats"];
