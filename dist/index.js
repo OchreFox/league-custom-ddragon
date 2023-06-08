@@ -504,7 +504,6 @@ function getMerakiItemData(endpointData, mergedItems) {
     "nicknames",
     "requiredChampion",
     "simpleDescription",
-    "tier",
     "stats",
     "passives",
     "active"
@@ -545,6 +544,7 @@ function getBlitzItemData(endpoint) {
       } else if ((propKey === "maps" || propKey === "from" || propKey === "into") && itemValue !== null) {
         data[key][propKey] = itemValue.map(Number);
       } else if (propKey === "depth") {
+        data[key]["tier"] = parseInt(itemValue, 10);
         delete data[key]["depth"];
       } else if (propKey === "stats") {
         delete data[key]["stats"];
