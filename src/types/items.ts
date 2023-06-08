@@ -338,6 +338,7 @@ export interface BlitzItem {
   mythic: boolean;
   from?: string[];
   depth?: number;
+  tier?: number;
 }
 
 export interface BlitzStats {

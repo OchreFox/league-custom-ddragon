@@ -124,7 +124,6 @@ export function getMerakiItemData(
     "nicknames",
     "requiredChampion",
     "simpleDescription",
-    "tier",
     "stats",
     "passives",
     "active",
@@ -180,8 +179,7 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
       ) {
         data[key][propKey] = itemValue.map(Number);
       } else if (propKey === "depth") {
-        // Delete the depth key
-        delete data[key]["depth"];
+        data[key]["tier"] = parseInt(itemValue, 10);
       } else if (propKey === "stats") {
         // Delete stats from blitzEndpoint
         delete data[key]["stats"];
