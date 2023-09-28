@@ -42,7 +42,7 @@
     "camelcase-keys": "^8.0.2",
     "dotenv": "^16.0.3",
     "fast-blurhash": "^1.1.2",
-    "fast-xml-parser": "^4.2.4",
+    "fast-xml-parser": "^4.2.7",
     "fs-extra": "^10.1.0",
     "isomorphic-dompurify": "^1.6.0",
     "jsdom": "^22.1.0",
