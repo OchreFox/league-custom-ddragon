@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8.54 10.31">
+    <polygon points="5.9,2 8.5,2 7.2,0 5.9,2" fill="#bd9e59" />
+    <path
+        d="M 5.3 10 C 4.1 10 3 9.4 2.5 8.3 c -0.6 -1.6 0.9 -4.2 2.8 -7.6 c 1.8 3.4 3.4 5.9 2.8 7.6 C 7.6 9.3 6.5 10 5.3 10 Z"
+        transform="matrix(1,0,0,1,-2.5,-0.2)" fill="#bd9e59" fill-rule="evenodd" />
+</svg>
