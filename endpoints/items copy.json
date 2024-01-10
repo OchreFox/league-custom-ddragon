@@ -6,6 +6,12 @@
     "needsLatest": true
   },
   {
+    "name": "MerakiAnalytics",
+    "baseUrl": "https://cdn.merakianalytics.com/riot/lol/resources/latest",
+    "resource": "/en-US/items.json",
+    "needsLatest": false
+  },
+  {
     "name": "CommunityDragon",
     "baseUrl": "https://raw.communitydragon.org/latest",
     "resource": "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",

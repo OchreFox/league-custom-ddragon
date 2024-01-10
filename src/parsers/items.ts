@@ -51,9 +51,9 @@ const mergeItems = async (
         Object.assign(mergedItems, getBlitzItemData(endpointData));
         break;
 
-      case "MerakiAnalytics":
-        mergedItems = getMerakiItemData(endpointData, mergedItems);
-        break;
+      // case "MerakiAnalytics":
+      //   mergedItems = getMerakiItemData(endpointData, mergedItems);
+      //   break;
 
       case "CommunityDragon":
         mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
