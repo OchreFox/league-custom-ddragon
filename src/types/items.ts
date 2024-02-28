@@ -7,7 +7,6 @@ export interface Item {
   maps: number[];
   gold: Gold;
   into: number[];
-  mythic: boolean;
   icon: string;
   iconOverlay: boolean;
   nicknames: string[];
@@ -21,6 +20,7 @@ export interface Item {
   maxStacks: number;
   from: number[];
   placeholder: string;
+  type: string[];
 }
 
 export enum Category {
@@ -162,7 +162,6 @@ export interface MerakiItem {
   required_champion?: string;
   required_ally?: string;
   simple_description?: null | string;
-  mythic?: boolean;
 }
 
 export interface Active {
@@ -335,7 +334,6 @@ export interface BlitzItem {
   maps: string[];
   gold: Gold;
   into?: string[];
-  mythic: boolean;
   from?: string[];
   depth?: number;
   tier?: number;

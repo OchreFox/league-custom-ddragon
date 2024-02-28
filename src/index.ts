@@ -10,4 +10,4 @@ const main = async () => {
   info("Successfully generated custom files.");
 };
 
-await main();
+main();

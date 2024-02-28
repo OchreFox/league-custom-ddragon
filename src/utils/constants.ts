@@ -1,5 +1,7 @@
+import { Item, RequiredChampion } from "../types/items";
+
 // Set default values for required keys
-export const defaultValues = {
+export const defaultValues: Item = {
   categories: [],
   classes: [],
   description: null,
@@ -12,11 +14,10 @@ export const defaultValues = {
   into: [],
   maps: [],
   maxStacks: 0,
-  mythic: false,
   name: "",
   nicknames: [],
   placeholder: "",
-  requiredChampion: "",
+  requiredChampion: RequiredChampion.Empty,
   simpleDescription: "",
   stats: {},
   tier: 0,

@@ -177,17 +177,11 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
         (propKey === "maps" || propKey === "from" || propKey === "into") &&
         itemValue !== null
       ) {
+        // Convert maps, from and into to numbers
         data[key][propKey] = itemValue.map(Number);
-      } else if (propKey === "depth") {
-        data[key]["tier"] = parseInt(itemValue, 10);
-        delete data[key]["depth"];
       } else if (propKey === "stats") {
         // Delete stats from blitzEndpoint
         delete data[key]["stats"];
-      }
-      // Handle description to check if it's a mythic item
-      else if (propKey === "mythic") {
-        data[key]["mythic"] = itemValue;
       }
     });
   });
@@ -232,6 +226,37 @@ export function getLeagueOfLegendsWikiItemData(
     if (mergedItems[key]) {
       mergedItems[key] = { ...mergedItems[key], type: item.type };
     }
+  });
+
+  // Resolve the circular references in the item data by replacing all arrows with the corresponding item data
+  // Example:
+  // "7031": {
+  //   "id": 7031,
+  //   "name": "Edge of Finality",
+  //   "type": "=>Infinity Edge", -> copy the data from the base item (Infinity Edge) -> "type": {"Legendary"},
+  //  [...]
+  // },
+
+  // Loop through all the items in the mergedItems object and their properties
+
+  mergedItems = _.mapValues(mergedItems, (item) => {
+    // Loop through each property of the item
+    Object.entries(item).forEach(([key, value]: [string, any]) => {
+      // If the property is an object and the value contains an arrow, find the corresponding item and replace the value with the item data
+      if (typeof value === "string" && value.includes("=>")) {
+        // Get the item name from the value
+        const itemName = value.split("=>")[1].trim();
+
+        // Find the item with the same name in the mergedItems object
+        const itemData = _.find(mergedItems, { name: itemName });
+
+        // Replace the value with the item data
+        item[key] = itemData[key];
+
+        console.log(`Replaced ${key} of ${item.name} with ${itemName}`);
+      }
+    });
+    return item;
   });
 
   return mergedItems;
