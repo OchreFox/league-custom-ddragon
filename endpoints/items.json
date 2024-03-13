@@ -1,20 +1,14 @@
 [
   {
-    "name": "Blitz",
-    "baseUrl": "https://blitz-cdn-plain.blitz.gg/blitz/ddragon/",
-    "resource": "/data/en_US/items.json",
-    "needsLatest": true
+    "name": "MerakiAnalytics",
+    "baseUrl": "https://cdn.merakianalytics.com/riot/lol/resources/latest",
+    "resource": "/en-US/items.json",
+    "needsLatest": false
   },
   {
     "name": "CommunityDragon",
     "baseUrl": "https://raw.communitydragon.org/latest",
     "resource": "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
-    "needsLatest": false
-  },
-  {
-    "name": "LeagueOfLegendsWiki",
-    "baseUrl": "https://leagueoflegends.fandom.com/wiki",
-    "resource": "/Module:ItemData/data",
     "needsLatest": false
   }
 ]

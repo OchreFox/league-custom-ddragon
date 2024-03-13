@@ -7,7 +7,7 @@ import { Item } from "~/src/types/items.js";
  * Function to convert a string from camel case or snake case to pascal case
  * @param {string} str - The string to convert to PascalCase.
  */
-const toPascalCase = (str: string) => {
+export const toPascalCase = (str: string) => {
   return str
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -19,51 +19,52 @@ const toPascalCase = (str: string) => {
  * @param {Item} item - {
  * @returns {string} A string of XML.
  */
-export function sanitizeText(item: Item) {
+export function sanitizeText(
+  item: Item,
+  allowedTags: string[],
+  pascalCaseTags: string[]
+): string {
   if (!item) return "";
   let text = item.description;
   if (!text) {
-    return;
+    console.warn(`Item ${item.name} has no description`);
+    return "";
   }
-  // Remove curly braces from API placeholders
-  text = text.replaceAll("{", "");
-  text = text.replaceAll("}", "");
 
   // Sanitize text with dompurify
-
   let sanitizedText = DOMPurify.sanitize(text, {
-    CUSTOM_ELEMENT_HANDLING: {
-      // Match all tags except <br>
-      tagNameCheck: (tagName) => tagName !== "br",
-      attributeNameCheck: (attr) => true,
-      allowCustomizedBuiltInElements: true,
-    },
+    ALLOWED_TAGS: allowedTags,
+    FORBID_TAGS: ["br", "attention", "{{", "{%", "{", "}", "%}", "}}"],
+    SAFE_FOR_TEMPLATES: false,
+    ALLOW_DATA_ATTR: true,
+    KEEP_CONTENT: true, // Preserve content between tags
   });
 
-  // Replace all lowercase words inside the sanitizedText with the camelCaseTags version
-  // pascalCaseTags.forEach((tag) => {
-  //   const lowercaseTag = tag.toLowerCase();
-  //   // Replace lowercase tag with tag
-  //   sanitizedText = _.replace(
-  //     sanitizedText,
-  //     new RegExp(lowercaseTag, "g"),
-  //     tag
-  //   );
-  // });
+  // Replace all lowercase tags with PascalCase tags
+  pascalCaseTags.forEach((tag) => {
+    sanitizedText = sanitizedText.replace(
+      new RegExp(`<${tag.toLowerCase()}>`, "g"),
+      `<${tag}>`
+    );
+    sanitizedText = sanitizedText.replace(
+      new RegExp(`</${tag.toLowerCase()}>`, "g"),
+      `</${tag}>`
+    );
+  });
 
   // Parse with fast-xml-parser
   const parser = new XMLParser({
     preserveOrder: true,
   });
   const xml = parser.parse(sanitizedText);
+
   // Remove stats from the xml object
   if (xml.mainText?.stats) {
     for (let key in xml.mainText.stats) {
       delete xml.mainText.stats[key];
     }
   }
-  // Convert all tags to PascalCase
-  xml.mainText = _.mapKeys(xml.mainText, (value, key) => toPascalCase(key));
+
   // Convert xml object to XML string
   const builder = new XMLBuilder({
     preserveOrder: true,
@@ -72,7 +73,7 @@ export function sanitizeText(item: Item) {
 
   // Add stats between <Stats> tag and </Stats> tag
   xmlString = parseStats(xmlString, item);
-
+  // Combine Active tags
   xmlString = parseActives(xmlString);
 
   // Replace in xmlString:

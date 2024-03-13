@@ -3,6 +3,7 @@ import fs from "fs";
 import _ from "lodash";
 import { EndpointItemData } from "~/src/types/global.js";
 import {
+  BlitzData,
   BlitzRoot,
   ChampionClass,
   CommunityDragonItem,
@@ -13,9 +14,7 @@ import {
   Passive,
 } from "~/src/types/items.js";
 import camelcaseKeys from "camelcase-keys";
-import DOMPurify from "isomorphic-dompurify";
-import { JSDOM } from "jsdom";
-import LuaJSON from "lua-json";
+import { merakiItemSchema } from "../schemas/meraki-item-zod-schema";
 
 // Function to convert a string from snake case to camel case
 export function snakeToCamel(str: string) {
@@ -32,41 +31,27 @@ export function writeItems(latestVersion: string, mergedItems: {}) {
   fs.writeFileSync(`data/latest/items.json`, JSON.stringify(mergedItems));
 }
 
-// Filter passive stats to remove empty values and flatten the stats object
-function filterPassives(passives: Passive[]) {
-  return passives.map((passive: Passive) => {
-    // Flatten the stats object to prevent arrays of one object
-    let stats = Object.entries(passive.stats).map(([name, stat]) => {
-      if (Array.isArray(stat)) {
-        return { [name]: stat[0] };
-      } else {
-        return { [name]: stat };
-      }
-    });
-    passive.stats = filterStats(stats);
+// Filter passive stats to remove empty values or zero values
+function filterPassives(passives: Passive[]): Passive[] {
+  return passives.map((passive) => {
+    let filteredStats = filterStats(passive.stats);
+    if (filteredStats) {
+      passive.stats = filteredStats;
+    }
     return passive;
   });
 }
 
-// This function camelCases the keys of the stats object
-// while removing all the empty stats.
-function getCamelCaseStats(stats: MerakiStats) {
-  let camelCaseStats: MerakiStats = camelcaseKeys(stats, { deep: true });
-  // Loop trough each of the stats and filter out entries with value 0
-  return _(camelCaseStats)
-    .pickBy(_.isObject)
-    .mapValues((stat) => _.pickBy(stat, _.identity))
-    .omitBy(_.isEmpty)
-    .value() as MerakiStats;
-}
-
-// This code takes the stats returned by the Meraki API and returns a CamelCase version of the stats in an object.
-function filterStats(stats: MerakiStats | MerakiStats[]) {
-  if (Array.isArray(stats)) {
-    return getCamelCaseStats(stats[0]);
-  } else {
-    return getCamelCaseStats(stats);
-  }
+// Filter stats to remove empty values or zero values
+function filterStats(stats: MerakiStats): MerakiStats {
+  return _.mapValues(stats, (value) => {
+    if (value) {
+      // Remove empty values from the stats object
+      return _.pickBy(value, (value) => {
+        return value !== 0;
+      });
+    }
+  }) as MerakiStats;
 }
 
 // Returns the champion classes of the item. (e.g. "Fighter", "Tank")
@@ -81,35 +66,26 @@ function getChampionClasses(itemValues: MerakiItem) {
   return classes;
 }
 
-export function getCommunityDragonItemData(
-  endpointData: EndpointItemData,
-  mergedItems: { [x: string]: any }
-) {
+export function getCommunityDragonItemData(endpointData: EndpointItemData): {
+  [x: string]: CommunityDragonItem;
+} {
   let { data } = endpointData as { data: CommunityDragonItem[] };
-  const requiredKeysCD: (keyof CommunityDragonItem)[] = [
-    "categories",
-    "inStore",
-    "maxStacks",
-  ];
 
   data.forEach((item) => {
     const key = item.id;
-    let filteredItem = _.pick(item, requiredKeysCD);
-
     // Strip text after Icons2d/ from the icon path
     let CDragonIconPath = item.iconPath.split("Icons2D/")[1].toLowerCase();
-    if (mergedItems[key]) {
-      // Set icon
-      mergedItems[key].icon =
-        "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" +
-        CDragonIconPath;
-
-      // Append the filteredItem to the mergedItems in the corresponding key
-      mergedItems[key] = { ...mergedItems[key], ...filteredItem };
-    } else {
-      console.log("Item " + key + " not found in mergedItems");
-    }
+    // Set icon path to the community dragon icon path
+    data[key].icon =
+      "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" +
+      CDragonIconPath;
   });
+
+  // Convert the data object from an array to an object with the id as the key
+  let mergedItems = _.keyBy(data, "id");
+
+  // Save mergedItems to a file for debugging
+  fs.writeFileSync("data/mergedItems.json", JSON.stringify(mergedItems));
 
   return mergedItems;
 }
@@ -119,6 +95,30 @@ export function getMerakiItemData(
   mergedItems: { [x: string]: any }
 ) {
   let { data } = endpointData as { data: MerakiItemObject };
+  // Remove the mythic property from the passives
+  Object.entries(data).forEach(([key, item]) => {
+    item.passives.forEach((passive) => {
+      delete passive.mythic;
+    });
+  });
+
+  let merakiItemData: MerakiItemObject = camelcaseKeys(data, { deep: true });
+
+  // Check schema
+  Object.entries(merakiItemData).forEach(([key, item]) => {
+    try {
+      merakiItemSchema.parse(item);
+    } catch (error) {
+      throw new Error(
+        `Meraki item with key ${key} does not match the schema: ${error}`
+      );
+    }
+  });
+  console.log("Meraki schema check complete");
+
+  // Save meraki data to a file for debugging
+  fs.writeFileSync("data/meraki.json", JSON.stringify(merakiItemData));
+
   const requiredKeysMeraki: (keyof MerakiItem)[] = [
     "iconOverlay",
     "nicknames",
@@ -129,7 +129,7 @@ export function getMerakiItemData(
     "active",
   ];
   // Loop through each item in the MerakiAnalytics endpoint
-  Object.entries(data).forEach(([itemKey, itemValues]) => {
+  Object.entries(merakiItemData).forEach(([itemKey, itemValues]) => {
     let filteredItem = _.pick(itemValues, requiredKeysMeraki);
     // Get an array of champion classes from nested object property
     let classes = getChampionClasses(itemValues);
@@ -185,79 +185,25 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
       }
     });
   });
-  return data;
-}
 
-export function getLeagueOfLegendsWikiItemData(
-  endpointData: EndpointItemData,
-  mergedItems: { [x: string]: any }
-) {
-  // Endpoint data is an HTML string, sanitize it with DOMPurify
-  const cleanHTML = DOMPurify.sanitize(endpointData.data as string);
-
-  // Parse the HTML string using JSDOM
-  const dom = new JSDOM(cleanHTML);
-  const document = dom.window.document;
-
-  // Get the element with the item data
-  const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
-  const itemDataElement = document.querySelector(itemDataSelector);
-  const itemDataString = itemDataElement?.textContent;
-
-  // Convert the Lua table to JSON
-  const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
-
-  // Convert the JSON to an array of items
-  const itemDataArray = Object.entries(itemDataJSON).map(([key, value]) => {
-    return {
-      name: key,
-      ...value,
-    };
-  });
-
-  // Loop through each item in the LeagueOfLegendsWiki endpoint and merge the following keys with the existing item:
-  // - type: Array of strings
-
-  itemDataArray.forEach((item) => {
-    // Set key as the item id
-    const key = item.id;
-
-    // Append the filteredItem to the mergedItems in the corresponding key
-    if (mergedItems[key]) {
-      mergedItems[key] = { ...mergedItems[key], type: item.type };
+  // Make a list of all valid item ids from the blitz data
+  // That is, all items that have in maps 11 (SR) or 12 (HA)
+  const validMapIds = [11, 12];
+  let validItemIds: string[] = [];
+  Object.entries(data).forEach(([key, itemData]) => {
+    if (itemData.maps.some((mapId) => validMapIds.includes(mapId))) {
+      validItemIds.push(key);
     }
   });
 
-  // Resolve the circular references in the item data by replacing all arrows with the corresponding item data
-  // Example:
-  // "7031": {
-  //   "id": 7031,
-  //   "name": "Edge of Finality",
-  //   "type": "=>Infinity Edge", -> copy the data from the base item (Infinity Edge) -> "type": {"Legendary"},
-  //  [...]
-  // },
-
-  // Loop through all the items in the mergedItems object and their properties
-
-  mergedItems = _.mapValues(mergedItems, (item) => {
-    // Loop through each property of the item
-    Object.entries(item).forEach(([key, value]: [string, any]) => {
-      // If the property is an object and the value contains an arrow, find the corresponding item and replace the value with the item data
-      if (typeof value === "string" && value.includes("=>")) {
-        // Get the item name from the value
-        const itemName = value.split("=>")[1].trim();
-
-        // Find the item with the same name in the mergedItems object
-        const itemData = _.find(mergedItems, { name: itemName });
-
-        // Replace the value with the item data
-        item[key] = itemData[key];
-
-        console.log(`Replaced ${key} of ${item.name} with ${itemName}`);
-      }
-    });
-    return item;
+  // Filter the blitz data to only include the valid item ids
+  let blitzData: BlitzData = {};
+  validItemIds.forEach((key) => {
+    blitzData[key] = data[key];
   });
 
-  return mergedItems;
+  // Save blitz data to a file for debugging
+  fs.writeFileSync("data/blitz.json", JSON.stringify(blitzData));
+
+  return blitzData;
 }

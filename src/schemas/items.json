@@ -1,0 +1,472 @@
+{
+  "$id": "itemsSchema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/definitions/ItemsValue"
+  },
+  "definitions": {
+    "ItemsValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "maps": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "gold": {
+          "$ref": "#/definitions/Gold"
+        },
+        "into": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "mythic": {
+          "type": "boolean"
+        },
+        "type": {
+          "$ref": "#/definitions/TypeUnion"
+        },
+        "icon": {
+          "type": "string",
+          "qt-uri-protocols": [
+            "https"
+          ],
+          "qt-uri-extensions": [
+            ".png"
+          ]
+        },
+        "placeholder": {
+          "type": "string"
+        },
+        "iconOverlay": {
+          "type": "boolean"
+        },
+        "nicknames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredChampion": {
+          "$ref": "#/definitions/RequiredChampion"
+        },
+        "simpleDescription": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "tier": {
+          "type": "integer"
+        },
+        "stats": {
+          "$ref": "#/definitions/Stats"
+        },
+        "passives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Passive"
+          }
+        },
+        "active": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Active"
+          }
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Class"
+          }
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Category"
+          }
+        },
+        "inStore": {
+          "type": "boolean"
+        },
+        "maxStacks": {
+          "type": "integer"
+        },
+        "from": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      },
+      "required": [
+        "categories",
+        "classes",
+        "description",
+        "from",
+        "gold",
+        "icon",
+        "iconOverlay",
+        "id",
+        "inStore",
+        "into",
+        "maps",
+        "maxStacks",
+        "mythic",
+        "name",
+        "nicknames",
+        "requiredChampion",
+        "simpleDescription",
+        "stats",
+        "tier"
+      ],
+      "title": "ItemsValue"
+    },
+    "Gold": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "type": "integer"
+        },
+        "purchasable": {
+          "type": "boolean"
+        },
+        "total": {
+          "type": "integer"
+        },
+        "sell": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "base",
+        "purchasable",
+        "sell",
+        "total"
+      ],
+      "title": "Gold"
+    },
+    "Stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "abilityPower": {
+          "type": "object"
+        },
+        "armor": {
+          "type": "object"
+        },
+        "armorPenetration": {
+          "type": "object"
+        },
+        "attackDamage": {
+          "type": "object"
+        },
+        "attackSpeed": {
+          "type": "object"
+        },
+        "cooldownReduction": {
+          "type": "object"
+        },
+        "criticalStrikeChance": {
+          "type": "object"
+        },
+        "goldPer10": {
+          "type": "object"
+        },
+        "healAndShieldPower": {
+          "type": "object"
+        },
+        "health": {
+          "type": "object"
+        },
+        "healthRegen": {
+          "type": "object"
+        },
+        "lethality": {
+          "type": "object"
+        },
+        "lifesteal": {
+          "type": "object"
+        },
+        "magicPenetration": {
+          "type": "object"
+        },
+        "magicResistance": {
+          "type": "object"
+        },
+        "mana": {
+          "type": "object"
+        },
+        "manaRegen": {
+          "type": "object"
+        },
+        "movespeed": {
+          "type": "object"
+        },
+        "abilityHaste": {
+          "type": "object"
+        },
+        "omnivamp": {
+          "type": "object"
+        },
+        "tenacity": {
+          "type": "object"
+        }
+      },
+      "required": [],
+      "title": "Stats"
+    },
+    "PassiveStats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "abilityPower": {
+          "$ref": "#/definitions/AbilityHaste"
+        }
+      },
+      "required": [],
+      "title": "PassiveStats"
+    },
+    "AbilityHaste": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flat": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "flat"
+      ],
+      "title": "AbilityHaste"
+    },
+    "Passive": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unique": {
+          "type": "boolean"
+        },
+        "mythic": {
+          "type": "boolean"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "effects": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cooldown": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "stats": {
+          "$ref": "#/definitions/PassiveStats"
+        }
+      },
+      "required": [
+        "effects",
+        "mythic",
+        "name",
+        "range",
+        "stats",
+        "unique"
+      ],
+      "title": "Passive"
+    },
+    "Active": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unique": {
+          "type": "boolean"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "effects": {
+          "type": "string"
+        },
+        "range": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cooldown": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "cooldown",
+        "effects",
+        "name",
+        "range",
+        "unique"
+      ],
+      "title": "Active"
+    },
+    "TypeUnion": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TypeElement"
+          }
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "TypeUnion"
+    },
+    "Category": {
+      "type": "string",
+      "enum": [
+        "Boots",
+        "ManaRegen",
+        "HealthRegen",
+        "Health",
+        "Damage",
+        "NonbootsMovement",
+        "CriticalStrike",
+        "SpellDamage",
+        "Mana",
+        "Armor",
+        "SpellBlock",
+        "Active",
+        "LifeSteal",
+        "SpellVamp",
+        "Jungle",
+        "OnHit",
+        "Consumable",
+        "Lane",
+        "Stealth",
+        "Vision",
+        "Tenacity",
+        "Trinket",
+        "GoldPer",
+        "ArmorPenetration",
+        "AttackSpeed",
+        "CooldownReduction",
+        "AbilityHaste",
+        "Slow",
+        "MagicPenetration",
+        "Aura",
+        "MagicResist"
+      ],
+      "title": "Category"
+    },
+    "Class": {
+      "type": "string",
+      "enum": [
+        "MAGE",
+        "SUPPORT",
+        "TANK",
+        "FIGHTER",
+        "MARKSMAN",
+        "ASSASSIN"
+      ],
+      "title": "Class"
+    },
+    "RequiredChampion": {
+      "type": "string",
+      "enum": [
+        "",
+        "FiddleSticks",
+        "Kalista",
+        "Gangplank"
+      ],
+      "title": "RequiredChampion"
+    },
+    "TypeElement": {
+      "type": "string",
+      "enum": [
+        "Boots",
+        "Distributed",
+        "Basic",
+        "Epic",
+        "Legendary",
+        "Starter",
+        "Turret",
+        "Minion",
+        "Potion",
+        "Trinket",
+        "Consumable",
+        "Mythic"
+      ],
+      "title": "TypeElement"
+    }
+  }
+}

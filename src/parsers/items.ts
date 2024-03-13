@@ -1,13 +1,11 @@
 import axios from "axios";
 import _ from "lodash";
 import { getLatestVersion } from "~/src/utils/getLatestVersion.js";
-import { sanitizeText } from "~/src/utils/sanitizeText.js";
+import { sanitizeText, toPascalCase } from "~/src/utils/sanitizeText.js";
 import {
   getCommunityDragonItemData,
   getMerakiItemData,
-  getBlitzItemData,
   writeItems,
-  getLeagueOfLegendsWikiItemData,
 } from "~/src/utils/itemUtils.js";
 import { defaultValues } from "~/src/utils/constants.js";
 import { downloadImage } from "~/src/utils/downloadImages.js";
@@ -17,6 +15,24 @@ import { Endpoint, EndpointItemData } from "~/src/types/global.js";
 import { Item, ItemObject } from "~/src/types/items.js";
 import itemsConfig from "~/endpoints/items.json";
 import { createDirectory, getEndpoints } from "~/src/utils/endpointUtils.js";
+import { extractTags } from "../utils/extractTags";
+
+const axiosOptions = {
+  headers: {
+    "Accept-Encoding": "identity",
+  },
+};
+
+const fetchItems = async (endpoint: Endpoint): Promise<EndpointItemData> => {
+  console.log(`Fetching ${endpoint.name} items...`);
+  try {
+    const response = await axios.get(endpoint.url, axiosOptions);
+    console.log(`Fetched ${endpoint.name} items`);
+    return { name: endpoint.name, data: response.data };
+  } catch (error) {
+    throw new Error(`Error fetching ${endpoint.name} items: ${error}`);
+  }
+};
 
 // Main function to merge the items from the different endpoints
 const mergeItems = async (
@@ -28,39 +44,33 @@ const mergeItems = async (
 
   // Fetch all the items from the different endpoints
   endpoints.forEach((endpoint) => {
-    console.log(`Fetching ${endpoint.name} items...`);
-    let promise = axios
-      .get(endpoint.url, {
-        headers: {
-          "Accept-Encoding": "identity",
-        },
+    let promise = fetchItems(endpoint)
+      .then((data) => {
+        fetchedItemData.push(data);
       })
-      .then((response) => {
-        console.log(`Fetched ${endpoint.name} items`);
-        fetchedItemData.push({ name: endpoint.name, data: response.data });
+      .catch((error) => {
+        console.error(error);
       });
     itemPromises.push(promise);
   });
+
   await Promise.all(itemPromises);
 
   // Merge the items from the different endpoints
   let mergedItems: ItemObject = {};
+  let cdItems;
+  let allowedTags: string[] = [];
+
   fetchedItemData.forEach((endpointData) => {
     switch (endpointData.name) {
-      case "Blitz":
-        Object.assign(mergedItems, getBlitzItemData(endpointData));
-        break;
-
-      // case "MerakiAnalytics":
-      //   mergedItems = getMerakiItemData(endpointData, mergedItems);
-      //   break;
-
       case "CommunityDragon":
-        mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
+        cdItems = getCommunityDragonItemData(endpointData);
+        allowedTags = extractTags(cdItems);
+        Object.assign(mergedItems, cdItems);
         break;
 
-      case "LeagueOfLegendsWiki":
-        mergedItems = getLeagueOfLegendsWikiItemData(endpointData, mergedItems);
+      case "MerakiAnalytics":
+        mergedItems = getMerakiItemData(endpointData, mergedItems);
         break;
     }
   });
@@ -69,15 +79,20 @@ const mergeItems = async (
   mergedItems = _.mapValues(mergedItems, (item) => {
     return _.defaults(item, defaultValues);
   });
-
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
 
-  let itemIconPromises: Promise<void>[] = [];
+  // Create a separate list of tags converted to PascalCase
+  const pascalCaseTags = allowedTags.map((tag) => toPascalCase(tag));
 
   // Download item icons and placeholders
+  let itemIconPromises: Promise<void>[] = [];
   Object.entries(mergedItems).forEach(([key, item]: [string, Item]) => {
     if (item.description) {
-      mergedItems[key].description = sanitizeText(item);
+      mergedItems[key].description = sanitizeText(
+        item,
+        allowedTags,
+        pascalCaseTags
+      );
     }
     let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
     if (iconName && iconName.length > 0) {

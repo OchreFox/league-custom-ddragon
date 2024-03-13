@@ -177,7 +177,6 @@ var queryString = {
 
 // src/parsers/champions.ts
 var mergeChampions = async (endpoints, latestVersion) => {
-  var _a;
   let mobalyticsConfig = {
     method: "post",
     url: "https://app.mobalytics.gg/api/league/gql/static/v1",
@@ -225,7 +224,7 @@ var mergeChampions = async (endpoints, latestVersion) => {
   for (const key of Object.keys(mergedChampionData)) {
     let icon = mergedChampionData[key].icon;
     if (icon) {
-      let iconName = ((_a = icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) || "";
+      let iconName = icon.split("/").pop()?.split(".")[0] || "";
       if (iconName && iconName.length > 0) {
         let promise = downloadImage(
           `data/img/champions/${iconName}.webp`,
@@ -288,75 +287,40 @@ import _4 from "lodash";
 import _2 from "lodash";
 import DOMPurify from "isomorphic-dompurify";
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
-var pascalCaseTags = [
-  "Active",
-  "Attention",
-  "FlavorText",
-  "Healing",
-  "KeywordStealth",
-  "MagicDamage",
-  "MainText",
-  "Passive",
-  "PhysicalDamage",
-  "RarityGeneric",
-  "RarityLegendary",
-  "RarityMythic",
-  "Rules",
-  "ScaleLevel",
-  "ScaleMana",
-  "Stats",
-  "Status",
-  "TrueDamage"
-];
 var toPascalCase = (str) => {
   return str.split("_").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join("");
 };
-function sanitizeText(item) {
-  var _a;
+function sanitizeText(item, allowedTags, pascalCaseTags) {
   if (!item)
     return "";
   let text = item.description;
   if (!text) {
-    return;
+    console.warn(`Item ${item.name} has no description`);
+    return "";
   }
-  text = text.replaceAll("{", "");
-  text = text.replaceAll("}", "");
   let sanitizedText = DOMPurify.sanitize(text, {
-    ADD_TAGS: [
-      "active",
-      "attention",
-      "flavorText",
-      "healing",
-      "keywordStealth",
-      "magicDamage",
-      "mainText",
-      "passive",
-      "physicalDamage",
-      "rarityGeneric",
-      "rarityLegendary",
-      "rarityMythic",
-      "rules",
-      "scaleLevel",
-      "scaleMana",
-      "stats",
-      "status",
-      "trueDamage"
-    ],
-    FORBID_TAGS: ["br"]
+    ALLOWED_TAGS: allowedTags,
+    FORBID_TAGS: ["br", "attention", "{{", "{%", "{", "}", "%}", "}}"],
+    SAFE_FOR_TEMPLATES: false,
+    ALLOW_DATA_ATTR: true,
+    KEEP_CONTENT: true
+    // Preserve content between tags
   });
   pascalCaseTags.forEach((tag) => {
-    const lowercaseTag = tag.toLowerCase();
-    sanitizedText = _2.replace(
-      sanitizedText,
-      new RegExp(lowercaseTag, "g"),
-      tag
+    sanitizedText = sanitizedText.replace(
+      new RegExp(`<${tag.toLowerCase()}>`, "g"),
+      `<${tag}>`
+    );
+    sanitizedText = sanitizedText.replace(
+      new RegExp(`</${tag.toLowerCase()}>`, "g"),
+      `</${tag}>`
     );
   });
   const parser = new XMLParser({
     preserveOrder: true
   });
   const xml = parser.parse(sanitizedText);
-  if ((_a = xml.mainText) == null ? void 0 : _a.stats) {
+  if (xml.mainText?.stats) {
     for (let key in xml.mainText.stats) {
       delete xml.mainText.stats[key];
     }
@@ -434,9 +398,124 @@ var ChampionClass = /* @__PURE__ */ ((ChampionClass2) => {
 
 // src/utils/itemUtils.ts
 import camelcaseKeys from "camelcase-keys";
-import DOMPurify2 from "isomorphic-dompurify";
-import { JSDOM } from "jsdom";
-import LuaJSON from "lua-json";
+
+// src/schemas/meraki-item-zod-schema.ts
+import { z } from "zod";
+var ItemRank = /* @__PURE__ */ ((ItemRank2) => {
+  ItemRank2["Basic"] = "BASIC";
+  ItemRank2["Boots"] = "BOOTS";
+  ItemRank2["Consumable"] = "CONSUMABLE";
+  ItemRank2["Distributed"] = "DISTRIBUTED";
+  ItemRank2["Epic"] = "EPIC";
+  ItemRank2["Legendary"] = "LEGENDARY";
+  ItemRank2["Minion"] = "MINION";
+  ItemRank2["Potion"] = "POTION";
+  ItemRank2["Starter"] = "STARTER";
+  ItemRank2["Trinket"] = "TRINKET";
+  ItemRank2["Turret"] = "TURRET";
+  return ItemRank2;
+})(ItemRank || {});
+var ItemTag = /* @__PURE__ */ ((ItemTag2) => {
+  ItemTag2["AbilityPower"] = "ABILITY_POWER";
+  ItemTag2["ArmorPen"] = "ARMOR_PEN";
+  ItemTag2["Assassin"] = "ASSASSIN";
+  ItemTag2["AttackDamage"] = "ATTACK_DAMAGE";
+  ItemTag2["AttackSpeed"] = "ATTACK_SPEED";
+  ItemTag2["Fighter"] = "FIGHTER";
+  ItemTag2["HealthAndReg"] = "HEALTH_AND_REG";
+  ItemTag2["LifestealVamp"] = "LIFESTEAL_VAMP";
+  ItemTag2["Mage"] = "MAGE";
+  ItemTag2["MagicPen"] = "MAGIC_PEN";
+  ItemTag2["ManaAndReg"] = "MANA_AND_REG";
+  ItemTag2["Marksman"] = "MARKSMAN";
+  ItemTag2["Movement"] = "MOVEMENT";
+  ItemTag2["OnhitEffects"] = "ONHIT_EFFECTS";
+  ItemTag2["Support"] = "SUPPORT";
+  ItemTag2["Tank"] = "TANK";
+  return ItemTag2;
+})(ItemTag || {});
+var activeSchema = z.object({
+  unique: z.boolean(),
+  name: z.string().nullable(),
+  effects: z.string(),
+  range: z.number().nullable(),
+  cooldown: z.null()
+});
+var itemStatsSchema = z.object({
+  flat: z.number(),
+  percent: z.number(),
+  perLevel: z.number().optional(),
+  percentPerLevel: z.number().optional(),
+  percentBase: z.number().optional(),
+  percentBonus: z.number().optional()
+});
+var rankSchema = z.nativeEnum(ItemRank);
+var pricesSchema = z.object({
+  total: z.number(),
+  combined: z.number(),
+  sell: z.number()
+});
+var tagSchema = z.nativeEnum(ItemTag);
+var merakiItemStatsSchema = z.object({
+  abilityPower: itemStatsSchema.optional(),
+  armor: itemStatsSchema,
+  armorPenetration: itemStatsSchema.optional(),
+  attackDamage: itemStatsSchema.optional(),
+  attackSpeed: itemStatsSchema.optional(),
+  cooldownReduction: itemStatsSchema.optional(),
+  criticalStrikeChance: itemStatsSchema.optional(),
+  goldPer10: itemStatsSchema.optional(),
+  healAndShieldPower: itemStatsSchema.optional(),
+  health: itemStatsSchema,
+  healthRegen: itemStatsSchema.optional(),
+  lethality: itemStatsSchema,
+  lifesteal: itemStatsSchema,
+  magicPenetration: itemStatsSchema.optional(),
+  magicResistance: itemStatsSchema.optional(),
+  mana: itemStatsSchema,
+  manaRegen: itemStatsSchema.optional(),
+  movespeed: itemStatsSchema,
+  abilityHaste: itemStatsSchema.optional(),
+  omnivamp: itemStatsSchema,
+  tenacity: itemStatsSchema
+});
+var shopSchema = z.object({
+  prices: pricesSchema,
+  purchasable: z.boolean(),
+  tags: z.array(tagSchema)
+});
+var passiveSchema = z.object({
+  unique: z.boolean(),
+  mythic: z.boolean().optional(),
+  name: z.string().nullable(),
+  effects: z.string(),
+  range: z.number().nullable(),
+  cooldown: z.string().nullable(),
+  stats: merakiItemStatsSchema
+});
+var merakiItemSchema = z.object({
+  name: z.string(),
+  id: z.number(),
+  tier: z.number(),
+  rank: z.array(rankSchema),
+  buildsFrom: z.array(z.number()).optional(),
+  buildsInto: z.array(z.number()).optional(),
+  specialRecipe: z.number().optional(),
+  noEffects: z.boolean().optional(),
+  removed: z.boolean(),
+  requiredChampion: z.string().optional(),
+  requiredAlly: z.string().optional(),
+  icon: z.string(),
+  simpleDescription: z.string().optional().nullable(),
+  nicknames: z.array(z.string()),
+  passives: z.array(passiveSchema),
+  active: z.array(activeSchema),
+  stats: merakiItemStatsSchema,
+  shop: shopSchema,
+  iconOverlay: z.boolean()
+});
+
+// src/utils/itemUtils.ts
 function writeItems(latestVersion, mergedItems) {
   let rootPath = "data/";
   let latestVersionPath = path.join(rootPath, latestVersion, "/items.json");
@@ -446,27 +525,21 @@ function writeItems(latestVersion, mergedItems) {
 }
 function filterPassives(passives) {
   return passives.map((passive) => {
-    let stats = Object.entries(passive.stats).map(([name, stat]) => {
-      if (Array.isArray(stat)) {
-        return { [name]: stat[0] };
-      } else {
-        return { [name]: stat };
-      }
-    });
-    passive.stats = filterStats(stats);
+    let filteredStats = filterStats(passive.stats);
+    if (filteredStats) {
+      passive.stats = filteredStats;
+    }
     return passive;
   });
 }
-function getCamelCaseStats(stats) {
-  let camelCaseStats = camelcaseKeys(stats, { deep: true });
-  return _3(camelCaseStats).pickBy(_3.isObject).mapValues((stat) => _3.pickBy(stat, _3.identity)).omitBy(_3.isEmpty).value();
-}
 function filterStats(stats) {
-  if (Array.isArray(stats)) {
-    return getCamelCaseStats(stats[0]);
-  } else {
-    return getCamelCaseStats(stats);
-  }
+  return _3.mapValues(stats, (value) => {
+    if (value) {
+      return _3.pickBy(value, (value2) => {
+        return value2 !== 0;
+      });
+    }
+  });
 }
 function getChampionClasses(itemValues) {
   let classes = _3.get(itemValues, "shop.tags");
@@ -495,10 +568,28 @@ function getCommunityDragonItemData(endpointData, mergedItems) {
       console.log("Item " + key + " not found in mergedItems");
     }
   });
+  fs.writeFileSync("data/mergedItems.json", JSON.stringify(mergedItems));
   return mergedItems;
 }
 function getMerakiItemData(endpointData, mergedItems) {
   let { data } = endpointData;
+  Object.entries(data).forEach(([key, item]) => {
+    item.passives.forEach((passive) => {
+      delete passive.mythic;
+    });
+  });
+  let merakiItemData = camelcaseKeys(data, { deep: true });
+  Object.entries(merakiItemData).forEach(([key, item]) => {
+    try {
+      merakiItemSchema.parse(item);
+    } catch (error) {
+      throw new Error(
+        `Meraki item with key ${key} does not match the schema: ${error}`
+      );
+    }
+  });
+  console.log("Meraki schema check complete");
+  fs.writeFileSync("data/meraki.json", JSON.stringify(merakiItemData));
   const requiredKeysMeraki = [
     "iconOverlay",
     "nicknames",
@@ -508,7 +599,7 @@ function getMerakiItemData(endpointData, mergedItems) {
     "passives",
     "active"
   ];
-  Object.entries(data).forEach(([itemKey, itemValues]) => {
+  Object.entries(merakiItemData).forEach(([itemKey, itemValues]) => {
     let filteredItem = _3.pick(itemValues, requiredKeysMeraki);
     let classes = getChampionClasses(itemValues);
     let stats = _3.get(itemValues, "stats");
@@ -543,39 +634,24 @@ function getBlitzItemData(endpoint) {
         data[key][propKey] = parseInt(itemValue, 10);
       } else if ((propKey === "maps" || propKey === "from" || propKey === "into") && itemValue !== null) {
         data[key][propKey] = itemValue.map(Number);
-      } else if (propKey === "depth") {
-        data[key]["tier"] = parseInt(itemValue, 10);
-        delete data[key]["depth"];
       } else if (propKey === "stats") {
         delete data[key]["stats"];
-      } else if (propKey === "mythic") {
-        data[key]["mythic"] = itemValue;
       }
     });
   });
-  return data;
-}
-function getLeagueOfLegendsWikiItemData(endpointData, mergedItems) {
-  const cleanHTML = DOMPurify2.sanitize(endpointData.data);
-  const dom = new JSDOM(cleanHTML);
-  const document = dom.window.document;
-  const itemDataSelector = "#mw-content-text > div.mw-parser-output > pre";
-  const itemDataElement = document.querySelector(itemDataSelector);
-  const itemDataString = itemDataElement == null ? void 0 : itemDataElement.textContent;
-  const itemDataJSON = LuaJSON.parse(itemDataString ?? "");
-  const itemDataArray = Object.entries(itemDataJSON).map(([key, value]) => {
-    return {
-      name: key,
-      ...value
-    };
-  });
-  itemDataArray.forEach((item) => {
-    const key = item.id;
-    if (mergedItems[key]) {
-      mergedItems[key] = { ...mergedItems[key], type: item.type };
+  const validMapIds = [11, 12];
+  let validItemIds = [];
+  Object.entries(data).forEach(([key, itemData]) => {
+    if (itemData.maps.some((mapId) => validMapIds.includes(mapId))) {
+      validItemIds.push(key);
     }
   });
-  return mergedItems;
+  let blitzData = {};
+  validItemIds.forEach((key) => {
+    blitzData[key] = data[key];
+  });
+  fs.writeFileSync("data/blitz.json", JSON.stringify(blitzData));
+  return blitzData;
 }
 
 // src/utils/constants.ts
@@ -592,11 +668,10 @@ var defaultValues = {
   into: [],
   maps: [],
   maxStacks: 0,
-  mythic: false,
   name: "",
   nicknames: [],
   placeholder: "",
-  requiredChampion: "",
+  requiredChampion: "" /* Empty */,
   simpleDescription: "",
   stats: {},
   tier: 0,
@@ -625,14 +700,31 @@ var items_default = [
     baseUrl: "https://raw.communitydragon.org/latest",
     resource: "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
     needsLatest: false
-  },
-  {
-    name: "LeagueOfLegendsWiki",
-    baseUrl: "https://leagueoflegends.fandom.com/wiki",
-    resource: "/Module:ItemData/data",
-    needsLatest: false
   }
 ];
+
+// src/utils/extractTags.ts
+import { writeFileSync as writeFileSync2 } from "fs";
+var extractTags = (blitzItemData) => {
+  let tags = [];
+  Object.entries(blitzItemData).forEach(([key, value]) => {
+    if (value.description) {
+      const description = value.description;
+      const regex = /<([a-zA-Z]+)>/g;
+      let match;
+      while ((match = regex.exec(description)) !== null) {
+        tags.push(match[1]);
+      }
+    }
+  });
+  tags = [...new Set(tags)];
+  const forbiddenTags = ["br", "attention"];
+  tags = tags.filter((tag) => !forbiddenTags.includes(tag));
+  tags.sort((a, b) => a.localeCompare(b));
+  writeFileSync2("data/tags.json", JSON.stringify(tags));
+  console.log("Tags extracted and saved to data/tags.json");
+  return tags;
+};
 
 // src/parsers/items.ts
 var mergeItems = async (endpoints, latestVersion) => {
@@ -652,10 +744,14 @@ var mergeItems = async (endpoints, latestVersion) => {
   });
   await Promise.all(itemPromises);
   let mergedItems = {};
+  let blitzItems;
+  let allowedTags = [];
   fetchedItemData.forEach((endpointData) => {
     switch (endpointData.name) {
       case "Blitz":
-        Object.assign(mergedItems, getBlitzItemData(endpointData));
+        blitzItems = getBlitzItemData(endpointData);
+        allowedTags = extractTags(blitzItems);
+        Object.assign(mergedItems, blitzItems);
         break;
       case "MerakiAnalytics":
         mergedItems = getMerakiItemData(endpointData, mergedItems);
@@ -663,22 +759,23 @@ var mergeItems = async (endpoints, latestVersion) => {
       case "CommunityDragon":
         mergedItems = getCommunityDragonItemData(endpointData, mergedItems);
         break;
-      case "LeagueOfLegendsWiki":
-        mergedItems = getLeagueOfLegendsWikiItemData(endpointData, mergedItems);
-        break;
     }
   });
   mergedItems = _4.mapValues(mergedItems, (item) => {
     return _4.defaults(item, defaultValues);
   });
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
+  const pascalCaseTags = allowedTags.map((tag) => toPascalCase(tag));
   let itemIconPromises = [];
   Object.entries(mergedItems).forEach(([key, item]) => {
-    var _a;
     if (item.description) {
-      mergedItems[key].description = sanitizeText(item);
+      mergedItems[key].description = sanitizeText(
+        item,
+        allowedTags,
+        pascalCaseTags
+      );
     }
-    let iconName = ((_a = item.icon.split("/").pop()) == null ? void 0 : _a.split(".")[0]) ?? "";
+    let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
     if (iconName && iconName.length > 0) {
       let promise = downloadImage(`data/img/items/${iconName}.webp`, item.icon).then((placeholder) => {
         mergedItems[key].icon = `data/img/items/${iconName}.webp`;
@@ -713,5 +810,5 @@ var main = async () => {
   info("Successfully merged champions.json\n");
   info("Successfully generated custom files.");
 };
-await main();
+main();
 //# sourceMappingURL=index.js.map

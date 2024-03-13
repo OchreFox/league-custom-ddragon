@@ -130,22 +130,38 @@ export interface CommunityDragonItem {
   price: number;
   priceTotal: number;
   iconPath: string;
+  // Custom properties
+  icon: string;
 }
 
 // Meraki types
 export type MerakiItemObject = Record<string, MerakiItem>;
 
+export enum Rank {
+  Basic = "BASIC",
+  Boots = "BOOTS",
+  Consumable = "CONSUMABLE",
+  Distributed = "DISTRIBUTED",
+  Epic = "EPIC",
+  Legendary = "LEGENDARY",
+  Minion = "MINION",
+  Potion = "POTION",
+  Starter = "STARTER",
+  Trinket = "TRINKET",
+  Turret = "TURRET",
+}
+
 export interface MerakiItem {
   name: string;
   id: number;
   tier: number;
-  rank: any[];
+  rank: Rank[];
   buildsFrom?: number[];
   buildsInto?: number[];
   specialRecipe?: number;
   noEffects?: boolean;
   removed: boolean;
-  requiredChampion?: RequiredChampion;
+  requiredChampion?: string;
   requiredAlly?: string;
   icon: string;
   simpleDescription?: null | string;
@@ -155,13 +171,6 @@ export interface MerakiItem {
   stats: MerakiStats;
   shop: Shop;
   iconOverlay: boolean;
-  builds_from?: number[];
-  builds_into?: number[];
-  special_recipe?: number;
-  no_effects?: boolean;
-  required_champion?: string;
-  required_ally?: string;
-  simple_description?: null | string;
 }
 
 export interface Active {
@@ -174,7 +183,7 @@ export interface Active {
 
 export interface Passive {
   unique: boolean;
-  mythic: boolean;
+  mythic?: boolean;
   name: null | string;
   effects: null | string;
   cooldown: null | string;
@@ -223,58 +232,37 @@ export enum ChampionClass {
 }
 
 export interface MerakiStats {
-  abilityPower?: MerakiStatExtended;
-  armor?: MerakiStatExtended;
-  armorPenetration?: MerakiStatExtended;
-  attackDamage?: MerakiStatExtended | MerakiStatExtended[];
-  attackSpeed?: MerakiStatTypeBase;
-  cooldownReduction?: MerakiStatExtended;
-  criticalStrikeChance?: MerakiStatExtended;
-  goldPer_10?: MerakiStatTypeBase;
-  goldPer10?: MerakiStatTypeBase;
-  healAndShieldPower?: MerakiStatTypeBase;
-  health?: MerakiStatExtended;
-  healthRegen?: MerakiStatExtended;
-  lethality?: MerakiStatExtended;
-  lifesteal?: MerakiStatExtended;
-  magicPenetration?: MerakiStatExtended;
-  magicResistance?: MerakiStatExtended;
-  mana?: MerakiStatTypeBase;
-  manaRegen?: MerakiStatExtended;
-  movespeed?: MerakiStatExtended | number;
-  abilityHaste?: MerakiStatExtended;
-  omnivamp?: MerakiStatTypeBase;
-  tenacity?: MerakiStatTypeBase;
-  ability_power?: MerakiStatTypeBase;
-  armor_penetration?: MerakiStatExtended;
-  attack_damage?: MerakiStatExtended;
-  attack_speed?: MerakiStatExtended;
-  cooldown_reduction?: MerakiStatTypeBase;
-  critical_strike_chance?: MerakiStatExtended;
-  gold_per_10?: MerakiStatTypeBase;
-  heal_and_shield_power?: MerakiStatTypeBase;
-  health_regen?: MerakiStatTypeBase;
-  magic_penetration?: MerakiStatTypeBase;
-  magic_resistance?: MerakiStatTypeBase;
-  mana_regen?: MerakiStatExtended;
-  ability_haste?: MerakiStatTypeBase;
-  [key: string]: MerakiStatExtended | MerakiStatExtended[] | number | undefined;
+  abilityPower?: ItemStats;
+  armor: ItemStats;
+  armorPenetration?: ItemStats;
+  attackDamage?: ItemStats;
+  attackSpeed?: ItemStats;
+  cooldownReduction?: ItemStats;
+  criticalStrikeChance?: ItemStats;
+  goldPer10?: ItemStats;
+  healAndShieldPower?: ItemStats;
+  health: ItemStats;
+  healthRegen?: ItemStats;
+  lethality: ItemStats;
+  lifesteal: ItemStats;
+  magicPenetration?: ItemStats;
+  magicResistance?: ItemStats;
+  mana: ItemStats;
+  manaRegen?: ItemStats;
+  movespeed: ItemStats;
+  abilityHaste?: ItemStats;
+  omnivamp: ItemStats;
+  tenacity: ItemStats;
+  [x: string]: ItemStats | undefined;
 }
 
-export interface MerakiStatTypeBase {
+export interface ItemStats {
   flat?: number;
   percent?: number;
   perLevel?: number;
   percentPerLevel?: number;
   percentBase?: number;
   percentBonus?: number;
-}
-
-export interface MerakiStatExtended extends Partial<MerakiStatTypeBase> {
-  per_level?: number;
-  percent_per_level?: number;
-  percent_base?: number;
-  percent_bonus?: number;
 }
 
 // Blitz types
@@ -331,10 +319,10 @@ export interface BlitzItem {
   name: string;
   description: string;
   stats?: BlitzStats;
-  maps: string[];
+  maps: number[];
   gold: Gold;
-  into?: string[];
-  from?: string[];
+  into?: number[];
+  from?: number[];
   depth?: number;
   tier?: number;
 }
