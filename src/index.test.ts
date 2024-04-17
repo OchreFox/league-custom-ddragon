@@ -1,14 +1,12 @@
 import axios from "axios";
 import { existsSync } from "fs";
 import { expect, test } from "@jest/globals";
-import { matchers } from "jest-json-schema";
-
 import { getLatestVersion } from "./utils/getLatestVersion";
 import { EndpointNames, Endpoint } from "./types/global";
 import { getEndpoints, readJsonFile } from "./utils/endpointUtils";
 import { ItemObject } from "./types/items";
+import { ItemsSchema } from "./schemas/item-schema";
 
-expect.extend(matchers);
 // Test to check that the latest version exists in Blitz API
 test("Latest version exists in Blitz API", async () => {
   const latestVersion = await getLatestVersion();
@@ -53,9 +51,8 @@ test("Latest items.json file is created in folders", async () => {
 // Test to validate the items.json file schema
 test("Latest items.json file has valid schema", () => {
   const items: ItemObject = readJsonFile("data/latest/items.json");
-  const itemsSchema = readJsonFile("schemas/items.json");
-  // @ts-ignore
-  expect(items).toMatchSchema(itemsSchema);
+  // Validate the schema of the items.json object
+  expect(() => ItemsSchema.parse(items)).not.toThrow();
 });
 
 // Test to expect a creation of a latest champions.json file in the latest version directory
