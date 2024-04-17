@@ -52,6 +52,27 @@ export function sanitizeText(
     );
   });
 
+  // Manipulate the sanitized text with JSDOM
+  const document = new JSDOM(sanitizedText).window.document;
+  const rootElement = document.querySelector("body");
+
+  // Replace all "checked" attributes in input tags to "defaultChecked" that have no "onChange" attribute
+  const inputTags = rootElement.querySelectorAll("input");
+  inputTags.forEach((input) => {
+    if (input.hasAttribute("checked") && !input.hasAttribute("onChange")) {
+      input.setAttribute("defaultChecked", "true");
+      input.removeAttribute("checked");
+    }
+  });
+
+  let jsxString = rootElement.innerHTML;
+
+  // The "defaultChecked" attribute is lowercased when using innerHTML, so we need to replace it with "defaultChecked={true}" manually
+  // As is: <input type="checkbox" defaultchecked="true">
+  // To be: <input type="checkbox" defaultChecked={true}>
+  const defaultCheckedRegex = new RegExp(/defaultchecked="true"/, "g");
+  jsxString = jsxString.replace(defaultCheckedRegex, "defaultChecked={true}");
+
   // Parse with fast-xml-parser
   const parser = new XMLParser({
     preserveOrder: true,

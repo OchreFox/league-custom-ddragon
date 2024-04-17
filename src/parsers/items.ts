@@ -3,6 +3,7 @@ import _ from "lodash";
 import { getLatestVersion } from "~/src/utils/getLatestVersion.js";
 import { sanitizeText, toPascalCase } from "~/src/utils/sanitizeText.js";
 import {
+  getBlitzItemData,
   getCommunityDragonItemData,
   getMerakiItemData,
   writeItems,
@@ -16,6 +17,8 @@ import { Item, ItemObject } from "~/src/types/items.js";
 import itemsConfig from "~/endpoints/items.json";
 import { createDirectory, getEndpoints } from "~/src/utils/endpointUtils.js";
 import { extractTags } from "../utils/extractTags";
+import { extractAllTemplates } from "../utils/wikiTemplateHelpers";
+import { writeFileSync } from "fs";
 
 const axiosOptions = {
   headers: {
@@ -32,6 +35,42 @@ const fetchItems = async (endpoint: Endpoint): Promise<EndpointItemData> => {
   } catch (error) {
     throw new Error(`Error fetching ${endpoint.name} items: ${error}`);
   }
+};
+
+// Batch download item icons to avoid rate limiting
+const batchDownloadItemIcons = async (
+  items: ItemObject,
+  allowedTags: string[],
+  pascalCaseTags: string[]
+) => {
+  let itemIconPromises: Promise<void>[] = [];
+  Object.entries(items).forEach(([key, item]: [string, Item]) => {
+    if (item.description) {
+      items[key].description = sanitizeText(item, allowedTags, pascalCaseTags);
+    }
+    if (item.icon) {
+      let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
+      if (iconName && iconName.length > 0) {
+        let promise = downloadImage(
+          `data/img/items/${iconName}.webp`,
+          item.icon
+        )
+          .then((placeholder: string) => {
+            items[key].icon = `data/img/items/${iconName}.webp`;
+            items[key].placeholder = placeholder;
+            console.log("Downloaded icon for item " + items[key].name);
+          })
+          .catch((error) => {
+            console.error(
+              `Error downloading icon for item ${item.name}: ${error}`
+            );
+          });
+        itemIconPromises.push(promise);
+      }
+    }
+  });
+
+  await Promise.all(itemIconPromises);
 };
 
 // Main function to merge the items from the different endpoints
@@ -61,19 +100,28 @@ const mergeItems = async (
   let cdItems;
   let allowedTags: string[] = [];
 
-  fetchedItemData.forEach((endpointData) => {
-    switch (endpointData.name) {
-      case "CommunityDragon":
-        cdItems = getCommunityDragonItemData(endpointData);
-        allowedTags = extractTags(cdItems);
-        Object.assign(mergedItems, cdItems);
-        break;
+  // Get initial items
+  cdItems = getCommunityDragonItemData(
+    fetchedItemData.find(
+      (data) => data.name === "CommunityDragon"
+    ) as EndpointItemData
+  );
+  allowedTags = extractTags(cdItems);
+  Object.assign(mergedItems, cdItems);
 
-      case "MerakiAnalytics":
-        mergedItems = getMerakiItemData(endpointData, mergedItems);
-        break;
-    }
-  });
+  // Get blitz items (for maps data)
+  mergedItems = getBlitzItemData(
+    fetchedItemData.find((data) => data.name === "Blitz") as EndpointItemData,
+    mergedItems
+  );
+
+  // Merge initial items with Meraki items
+  mergedItems = getMerakiItemData(
+    fetchedItemData.find(
+      (data) => data.name === "MerakiAnalytics"
+    ) as EndpointItemData,
+    mergedItems
+  );
 
   // Merge the default values with every item in mergedItems
   mergedItems = _.mapValues(mergedItems, (item) => {
@@ -81,37 +129,29 @@ const mergeItems = async (
   });
   console.log(`Merged ${Object.keys(mergedItems).length} items`);
 
+  // Get the wiki templates from the description of the items
+  const wikiTemplates = extractAllTemplates(mergedItems);
+  console.log(`Extracted ${wikiTemplates.length} wiki templates`);
+  writeFileSync("data/wikiTemplates.json", JSON.stringify(wikiTemplates));
+
   // Create a separate list of tags converted to PascalCase
   const pascalCaseTags = allowedTags.map((tag) => toPascalCase(tag));
 
-  // Download item icons and placeholders
-  let itemIconPromises: Promise<void>[] = [];
-  Object.entries(mergedItems).forEach(([key, item]: [string, Item]) => {
-    if (item.description) {
-      mergedItems[key].description = sanitizeText(
-        item,
-        allowedTags,
-        pascalCaseTags
-      );
-    }
-    let iconName = item.icon.split("/").pop()?.split(".")[0] ?? "";
-    if (iconName && iconName.length > 0) {
-      let promise = downloadImage(`data/img/items/${iconName}.webp`, item.icon)
-        .then((placeholder: string) => {
-          mergedItems[key].icon = `data/img/items/${iconName}.webp`;
-          mergedItems[key].placeholder = placeholder;
-          console.log("Downloaded icon for item " + mergedItems[key].name);
-        })
-        .catch((error) => {
-          console.error(
-            `Error downloading icon for item ${item.name}: ${error}`
-          );
-        });
-      itemIconPromises.push(promise);
-    }
-  });
+  // Create folders
+  createDirectory("data/img/champions", true);
+  createDirectory("data/img/items", true);
 
-  await Promise.all(itemIconPromises);
+  // Download item icons and placeholders
+  let batchSize = 50; // Download 50 item icons at a time
+  let batchedItemIcons = _.chunk(Object.entries(mergedItems), batchSize);
+  for (let batch of batchedItemIcons) {
+    console.info("Downloading item icons batch...");
+    await batchDownloadItemIcons(
+      _.fromPairs(batch),
+      allowedTags,
+      pascalCaseTags
+    );
+  }
 
   console.info("Writing items data to file...");
   writeItems(latestVersion, mergedItems);

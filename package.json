@@ -47,7 +47,7 @@
     "isomorphic-dompurify": "^1.13.0",
     "lodash": "^4.17.21",
     "lua-json": "^1.0.1",
-    "sharp": "^0.33.1",
+    "sharp": "^0.33.2",
     "typescript": "^5.3.3",
     "zod": "^3.22.4"
   },

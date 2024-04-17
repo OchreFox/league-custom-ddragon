@@ -10,5 +10,11 @@
     "baseUrl": "https://raw.communitydragon.org/latest",
     "resource": "/plugins/rcp-be-lol-game-data/global/default/v1/items.json",
     "needsLatest": false
+  },
+  {
+    "name": "Blitz",
+    "baseUrl": "https://blitz-cdn-plain.blitz.gg/blitz/ddragon/",
+    "resource": "/data/en_US/items.json",
+    "needsLatest": true
   }
 ]

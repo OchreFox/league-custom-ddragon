@@ -1,12 +1,12 @@
-import { BlitzData } from "../types/items";
+import { CommunityDragonItemObject } from "../types/items";
 import { writeFileSync } from "fs";
 
-export const extractTags = (blitzItemData: BlitzData) => {
+export const extractTags = (itemData: CommunityDragonItemObject) => {
   // Iterate through the items and extract the description of each item, then extract all the tags used in the description
   // tags are in the format <tag> and are case insensitive
   let tags: string[] = [];
 
-  Object.entries(blitzItemData).forEach(([key, value]) => {
+  Object.entries(itemData).forEach(([key, value]) => {
     if (value.description) {
       const description = value.description;
       const regex = /<([a-zA-Z]+)>/g;

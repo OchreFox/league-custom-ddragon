@@ -6,7 +6,6 @@ export interface Item {
   description: null | string;
   maps: number[];
   gold: Gold;
-  into: number[];
   icon: string;
   iconOverlay: boolean;
   nicknames: string[];
@@ -19,8 +18,19 @@ export interface Item {
   inStore: boolean;
   maxStacks: number;
   from: number[];
+  to: number[];
   placeholder: string;
   type: string[];
+  passives?: Passive[];
+  active: Passive[] | boolean;
+  requiredAlly?: string;
+  requiredBuffCurrencyName?: string;
+  requiredBuffCurrencyCost?: number;
+  specialRecipe?: number;
+  isEnchantment?: boolean;
+  price?: number;
+  priceTotal?: number;
+  iconPath?: string;
 }
 
 export enum Category {
@@ -111,6 +121,8 @@ export interface MixedNumber {
 
 // CommunityDragon types
 
+export type CommunityDragonItemObject = Record<string, CommunityDragonItem>;
+
 export interface CommunityDragonItem {
   id: number;
   name: string;
@@ -183,7 +195,6 @@ export interface Active {
 
 export interface Passive {
   unique: boolean;
-  mythic?: boolean;
   name: null | string;
   effects: null | string;
   cooldown: null | string;

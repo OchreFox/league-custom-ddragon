@@ -3,7 +3,6 @@ import axios from "axios";
 import { encode } from "blurhash";
 
 import { blurHashToDataURL } from "./blurhashDataURL.js";
-import { createDirectory } from "./endpointUtils.js";
 
 /**
  * &gt;&gt;&gt; downloadImage("data/img/items/image.png", "http://www.example.com/image.png")
@@ -21,10 +20,6 @@ export async function downloadImage(
   }
   let placeholder = "";
 
-  // Create folders
-  createDirectory("data/img/champions", true);
-  createDirectory("data/img/items", true);
-
   let axiosResponse = await axios
     .get(url, {
       responseType: "arraybuffer",
@@ -39,7 +34,7 @@ export async function downloadImage(
     console.log("Saving image " + filename);
     await sharp(axiosResponse.data)
       .toFile(filename)
-      .catch((err) => {
+      .catch((err: any) => {
         console.error(err);
       });
     // Create a placeholder

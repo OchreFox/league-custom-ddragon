@@ -11,7 +11,7 @@ export const defaultValues: Item = {
   iconOverlay: false,
   id: -1,
   inStore: false,
-  into: [],
+  to: [],
   maps: [],
   maxStacks: 0,
   name: "",
@@ -22,4 +22,5 @@ export const defaultValues: Item = {
   stats: {},
   tier: 0,
   type: [],
+  active: false,
 };

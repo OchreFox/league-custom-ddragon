@@ -4,6 +4,7 @@ import _ from "lodash";
 import { EndpointItemData } from "~/src/types/global.js";
 import {
   BlitzData,
+  BlitzItem,
   BlitzRoot,
   ChampionClass,
   CommunityDragonItem,
@@ -71,12 +72,11 @@ export function getCommunityDragonItemData(endpointData: EndpointItemData): {
 } {
   let { data } = endpointData as { data: CommunityDragonItem[] };
 
-  data.forEach((item) => {
-    const key = item.id;
+  data.map((item) => {
     // Strip text after Icons2d/ from the icon path
     let CDragonIconPath = item.iconPath.split("Icons2D/")[1].toLowerCase();
     // Set icon path to the community dragon icon path
-    data[key].icon =
+    item.icon =
       "https://raw.communitydragon.org/latest/game/assets/items/icons2d/" +
       CDragonIconPath;
   });
@@ -96,11 +96,11 @@ export function getMerakiItemData(
 ) {
   let { data } = endpointData as { data: MerakiItemObject };
   // Remove the mythic property from the passives
-  Object.entries(data).forEach(([key, item]) => {
-    item.passives.forEach((passive) => {
-      delete passive.mythic;
-    });
-  });
+  // Object.entries(data).forEach(([key, item]) => {
+  //   item.passives.forEach((passive) => {
+  //     delete passive.mythic;
+  //   });
+  // });
 
   let merakiItemData: MerakiItemObject = camelcaseKeys(data, { deep: true });
 
@@ -165,25 +165,20 @@ export function getMerakiItemData(
   return mergedItems;
 }
 
-export function getBlitzItemData(endpoint: EndpointItemData) {
+export function getBlitzItemData(
+  endpoint: EndpointItemData,
+  mergedItems: { [x: string]: any }
+) {
   let { data } = endpoint.data as BlitzRoot;
-  // Parse numbers
+
+  // Filter the blitz data to only get the required keys
   Object.entries(data).forEach(([key, itemData]) => {
-    Object.entries(itemData).forEach(([propKey, itemValue]) => {
-      if (propKey === "id") {
-        // Convert id to number
-        data[key][propKey] = parseInt(itemValue, 10);
-      } else if (
-        (propKey === "maps" || propKey === "from" || propKey === "into") &&
-        itemValue !== null
-      ) {
-        // Convert maps, from and into to numbers
-        data[key][propKey] = itemValue.map(Number);
-      } else if (propKey === "stats") {
-        // Delete stats from blitzEndpoint
-        delete data[key]["stats"];
-      }
-    });
+    let maps = itemData.maps?.map(Number) ?? [];
+    // Add the maps to the mergedItems in the corresponding key
+    mergedItems[key] = {
+      ...mergedItems[key],
+      maps: maps,
+    };
   });
 
   // Make a list of all valid item ids from the blitz data
@@ -191,19 +186,16 @@ export function getBlitzItemData(endpoint: EndpointItemData) {
   const validMapIds = [11, 12];
   let validItemIds: string[] = [];
   Object.entries(data).forEach(([key, itemData]) => {
-    if (itemData.maps.some((mapId) => validMapIds.includes(mapId))) {
+    if (itemData.maps.some((mapId) => validMapIds.includes(Number(mapId)))) {
       validItemIds.push(key);
     }
   });
 
-  // Filter the blitz data to only include the valid item ids
-  let blitzData: BlitzData = {};
-  validItemIds.forEach((key) => {
-    blitzData[key] = data[key];
+  // Filter the mergedItems to only include the valid item ids
+  let filteredItems: { [x: string]: any } = {};
+  validItemIds.forEach((itemId) => {
+    filteredItems[itemId] = mergedItems[itemId];
   });
 
-  // Save blitz data to a file for debugging
-  fs.writeFileSync("data/blitz.json", JSON.stringify(blitzData));
-
-  return blitzData;
+  return filteredItems;
 }

@@ -1,0 +1,492 @@
+[
+  {
+    "name": "Acquisition radius",
+    "type": "General",
+    "icon": "data/img/tooltips/acquisition_radius.png"
+  },
+  {
+    "name": "Adaptive damage",
+    "type": "General",
+    "icon": "data/img/tooltips/adaptive_damage.png"
+  },
+  {
+    "name": "Adaptive force",
+    "type": "General",
+    "icon": "data/img/tooltips/adaptive_force.png"
+  },
+  {
+    "name": "Attached",
+    "type": "General",
+    "icon": "data/img/tooltips/attached.png"
+  },
+  {
+    "name": "Bandit",
+    "type": "General",
+    "icon": "data/img/tooltips/bandit.png"
+  },
+  {
+    "name": "Basic attack",
+    "type": "General"
+  },
+  {
+    "name": "Basic attack reset",
+    "type": "General",
+    "icon": "data/img/tooltips/basic_attack_reset.png"
+  },
+  {
+    "name": "Blink",
+    "type": "General",
+    "icon": "data/img/tooltips/blink.png"
+  },
+  {
+    "name": "Block",
+    "type": "General",
+    "icon": "data/img/tooltips/block.png"
+  },
+  {
+    "name": "Brittle",
+    "type": "General",
+    "icon": "data/img/tooltips/brittle.png"
+  },
+  {
+    "name": "Cc-immune",
+    "type": "General",
+    "icon": "data/img/tooltips/cc-immune.png"
+  },
+  {
+    "name": "Centered range",
+    "alias": "cr",
+    "type": "General",
+    "icon": "data/img/tooltips/centered_range.png"
+  },
+  {
+    "name": "Champion",
+    "type": "General",
+    "icon": "data/img/tooltips/champion.png"
+  },
+  {
+    "name": "Channel",
+    "type": "General",
+    "icon": "data/img/tooltips/channel.png"
+  },
+  {
+    "name": "Cleanse",
+    "type": "General",
+    "icon": "data/img/tooltips/cleanse.png"
+  },
+  {
+    "name": "Complete crowd control",
+    "type": "General",
+    "icon": "data/img/tooltips/complete_crowd_control.png"
+  },
+  {
+    "name": "Critical strike",
+    "type": "General",
+    "icon": "data/img/tooltips/critical_strike.png"
+  },
+  {
+    "name": "Crowd control",
+    "type": "General",
+    "icon": "data/img/tooltips/crowd_control.png"
+  },
+  {
+    "name": "Dash",
+    "type": "General",
+    "icon": "data/img/tooltips/dash.png"
+  },
+  {
+    "name": "Death",
+    "type": "General",
+    "icon": "data/img/tooltips/death.png"
+  },
+  {
+    "name": "Disarming crowd control",
+    "type": "General",
+    "icon": "data/img/tooltips/disarming_crowd_control.png"
+  },
+  {
+    "name": "Dispel",
+    "type": "General",
+    "icon": "data/img/tooltips/dispel.png"
+  },
+  {
+    "name": "Dodge",
+    "type": "General",
+    "icon": "data/img/tooltips/dodge.png"
+  },
+  {
+    "name": "Drain",
+    "type": "General",
+    "icon": "data/img/tooltips/drain.png"
+  },
+  {
+    "name": "Edge range",
+    "alias": "er",
+    "type": "General",
+    "icon": "data/img/tooltips/edge_range.png"
+  },
+  {
+    "name": "Energized",
+    "type": "General",
+    "icon": "data/img/tooltips/energized.png"
+  },
+  {
+    "name": "Energy",
+    "type": "General",
+    "icon": "data/img/tooltips/energy.png"
+  },
+  {
+    "name": "Execute",
+    "type": "General",
+    "icon": "data/img/tooltips/execute.png"
+  },
+  {
+    "name": "Forced action",
+    "type": "General",
+    "icon": "data/img/tooltips/forced_action.png"
+  },
+  {
+    "name": "Fury",
+    "type": "General",
+    "icon": "data/img/tooltips/fury.png"
+  },
+  {
+    "name": "Gameplay radius",
+    "type": "General",
+    "icon": "data/img/tooltips/gameplay_radius.png"
+  },
+  {
+    "name": "Ghosted",
+    "type": "General",
+    "icon": "data/img/tooltips/ghosted.png"
+  },
+  {
+    "name": "Grievous wounds",
+    "type": "General",
+    "icon": "data/img/tooltips/grievous_wounds.png"
+  },
+  {
+    "name": "Health resource",
+    "type": "General",
+    "icon": "data/img/tooltips/health_resource.png"
+  },
+  {
+    "name": "Immobilize",
+    "alias": "Impaired",
+    "type": "General",
+    "icon": "data/img/tooltips/immobilize.png"
+  },
+  {
+    "name": "Interrupt",
+    "type": "General",
+    "icon": "data/img/tooltips/interrupt.png"
+  },
+  {
+    "name": "Invulnerability",
+    "type": "General",
+    "icon": "data/img/tooltips/invulnerability.png"
+  },
+  {
+    "name": "Lockout",
+    "type": "General",
+    "icon": "data/img/tooltips/lockout.png"
+  },
+  {
+    "name": "Lunge",
+    "type": "General",
+    "icon": "data/img/tooltips/lunge.png"
+  },
+  {
+    "name": "Manaless",
+    "type": "General",
+    "icon": "data/img/tooltips/manaless.png"
+  },
+  {
+    "name": "Mutilator",
+    "type": "General",
+    "icon": "data/img/tooltips/mutilator.png"
+  },
+  {
+    "name": "Omnivamp",
+    "type": "General",
+    "icon": "data/img/tooltips/omnivamp.png"
+  },
+  {
+    "name": "Pathing radius",
+    "type": "General",
+    "icon": "data/img/tooltips/pathing_radius.png"
+  },
+  {
+    "name": "Poison",
+    "type": "General",
+    "icon": "data/img/tooltips/poison.png"
+  },
+  {
+    "name": "Projectile",
+    "type": "General",
+    "icon": "data/img/tooltips/projectile.png"
+  },
+  {
+    "name": "Resurrection",
+    "type": "General",
+    "icon": "data/img/tooltips/resurrection.png"
+  },
+  {
+    "name": "Selection radius",
+    "type": "General",
+    "icon": "data/img/tooltips/selection_radius.png"
+  },
+  {
+    "name": "Spell shield",
+    "type": "General",
+    "icon": "data/img/tooltips/spell_shield.png"
+  },
+  {
+    "name": "Stasis",
+    "type": "General",
+    "icon": "data/img/tooltips/stasis.png"
+  },
+  {
+    "name": "Takedown",
+    "type": "General",
+    "icon": "data/img/tooltips/takedown.png"
+  },
+  {
+    "name": "Tenacity",
+    "type": "General",
+    "icon": "data/img/tooltips/tenacity.png"
+  },
+  {
+    "name": "Displacement immunity",
+    "type": "General",
+    "icon": "data/img/tooltips/displacement_immunity.png"
+  },
+  {
+    "name": "Uncancellable windup",
+    "type": "General",
+    "icon": "data/img/tooltips/uncancellable_windup.png"
+  },
+  {
+    "name": "Untargetable",
+    "type": "General",
+    "icon": "data/img/tooltips/untargetable.png"
+  },
+  {
+    "name": "Vanish",
+    "type": "General",
+    "icon": "data/img/tooltips/vanish.png"
+  },
+  {
+    "name": "Dragon locked",
+    "type": "General",
+    "icon": "data/img/tooltips/dragon_locked.png"
+  },
+  {
+    "name": "Zombie state",
+    "type": "General",
+    "icon": "data/img/tooltips/zombie_state.png"
+  },
+  {
+    "name": "Brush",
+    "alias": "Bush",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/brush.png"
+  },
+  {
+    "name": "Sight",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/sight.png"
+  },
+  {
+    "name": "Unobstructed vision",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/unobstructed_vision.png"
+  },
+  {
+    "name": "True sight",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/true_sight.png"
+  },
+  {
+    "name": "Exposed",
+    "alias": "Expose",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/exposed.png"
+  },
+  {
+    "name": "Disabled ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/disabled_ward.png"
+  },
+  {
+    "name": "Control ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/control_ward.png"
+  },
+  {
+    "name": "Farsight ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/farsight_ward.png"
+  },
+  {
+    "name": "Siege ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/siege_ward.png"
+  },
+  {
+    "name": "Stealth ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/stealth_ward.png"
+  },
+  {
+    "name": "Sweeper drone",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/sweeper_drone.png"
+  },
+  {
+    "name": "Totem ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/totem_ward.png"
+  },
+  {
+    "name": "Zombie ward",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/zombie_ward.png"
+  },
+  {
+    "name": "Ghost poro",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/ghost_poro.png"
+  },
+  {
+    "name": "Ward rubble",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/ward_rubble.png"
+  },
+  {
+    "name": "Stealth",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/stealth.png"
+  },
+  {
+    "name": "Camouflage",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/camouflage.png"
+  },
+  {
+    "name": "Invisibility",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/invisibility.png"
+  },
+  {
+    "name": "Obscured vision",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/obscured_vision.png"
+  },
+  {
+    "name": "Stealthed trap",
+    "type": "Vision and Wards",
+    "icon": "data/img/tooltips/stealthed_trap.png"
+  },
+  {
+    "name": "Unit-targeted",
+    "type": "Targeting paradigms",
+    "icon": "data/img/tooltips/unit-targeted.png"
+  },
+  {
+    "name": "Direction-targeted",
+    "type": "Targeting paradigms",
+    "icon": "data/img/tooltips/direction-targeted.png"
+  },
+  {
+    "name": "Ground-targeted",
+    "type": "Targeting paradigms",
+    "icon": "data/img/tooltips/ground-targeted.png"
+  },
+  {
+    "name": "Auto-targeted",
+    "type": "Targeting paradigms",
+    "icon": "data/img/tooltips/auto-targeted.png"
+  },
+  {
+    "name": "Aura",
+    "type": "Targeting paradigms",
+    "icon": "data/img/tooltips/aura.png"
+  },
+  {
+    "name": "Krugs",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/krugs.png"
+  },
+  {
+    "name": "Murk wolves",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/murk_wolves.png"
+  },
+  {
+    "name": "Raptors",
+    "alias": "chickens",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/raptors.png"
+  },
+  {
+    "name": "Golems",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/golems.png"
+  },
+  {
+    "name": "Wraiths",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/wraiths.png"
+  },
+  {
+    "name": "Wolves",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/wolves.png"
+  },
+  {
+    "name": "Impatience",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/impatience.png"
+  },
+  {
+    "name": "Minion",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/minion.png"
+  },
+  {
+    "name": "Monster",
+    "type": "Jungle & Minions",
+    "icon": "data/img/tooltips/monster.png"
+  },
+  {
+    "name": "Pet",
+    "type": "Pets and other unit types",
+    "icon": "data/img/tooltips/pet.png"
+  },
+  {
+    "name": "Clone",
+    "type": "Pets and other unit types",
+    "icon": "data/img/tooltips/clone.png"
+  },
+  {
+    "name": "Effigy",
+    "type": "Pets and other unit types",
+    "icon": "data/img/tooltips/effigy.png"
+  },
+  {
+    "name": "Turret",
+    "type": "Turret",
+    "icon": "data/img/tooltips/turret.png"
+  },
+  {
+    "name": "Nexus obelisk",
+    "type": "Turret",
+    "icon": "data/img/tooltips/nexus_obelisk.png"
+  },
+  {
+    "name": "Penetrating bullets",
+    "type": "Turret",
+    "icon": "data/img/tooltips/penetrating_bullets.png"
+  }
+]
