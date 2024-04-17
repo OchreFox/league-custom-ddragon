@@ -36,7 +36,6 @@
     "@actions/github": "^6.0.0",
     "@types/jest-json-schema": "^6.1.4",
     "@types/lodash": "^4.17.0",
-    "@types/sharp": "^0.32.0",
     "axios": "^1.6.8",
     "blurhash": "^2.0.5",
     "camelcase-keys": "^9.1.3",

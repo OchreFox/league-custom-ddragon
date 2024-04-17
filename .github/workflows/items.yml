@@ -24,22 +24,22 @@ jobs:
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
     name: Build Items
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
+          cache: "npm"
       - name: Install dependencies with a clean slate
-        run: yarn install
+        run: npm install
       - name: Build dist
-        run: yarn run build
+        run: npm run build
       - name: Build custom json files
         # id: items
         # uses: OchreFox/league-custom-ddragon@main
-        run: yarn run start
+        run: npm run start
       - name: Run tests
-        run: yarn run test
+        run: npm run test
       - name: Commit files only when the branch is main
         id: commit
         if: github.ref == 'refs/heads/main'
