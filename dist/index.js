@@ -494,7 +494,6 @@ var passiveSchema = z.object({
 var merakiItemSchema = z.object({
   name: z.string(),
   id: z.number(),
-  tier: z.number(),
   rank: z.array(rankSchema),
   buildsFrom: z.array(z.number()).optional(),
   buildsInto: z.array(z.number()).optional(),
@@ -579,7 +578,8 @@ function getMerakiItemData(endpointData, mergedItems) {
     "simpleDescription",
     "stats",
     "passives",
-    "active"
+    "active",
+    "rank"
   ];
   Object.entries(merakiItemData).forEach(([itemKey, itemValues]) => {
     let filteredItem = _3.pick(itemValues, requiredKeysMeraki);
@@ -651,9 +651,9 @@ var defaultValues = {
   requiredChampion: "" /* Empty */,
   simpleDescription: "",
   stats: {},
-  tier: 0,
   type: [],
-  active: false
+  active: false,
+  rank: []
 };
 
 // src/parsers/items.ts

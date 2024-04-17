@@ -103,7 +103,6 @@ export const passiveSchema = z.object({
 export const merakiItemSchema = z.object({
   name: z.string(),
   id: z.number(),
-  tier: z.number(),
   rank: z.array(rankSchema),
   buildsFrom: z.array(z.number()).optional(),
   buildsInto: z.array(z.number()).optional(),

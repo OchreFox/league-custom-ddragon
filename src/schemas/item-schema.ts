@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rankSchema } from "./meraki-item-zod-schema";
 
 export const ClassElementSchema = z.enum([
   "ASSASSIN",
@@ -157,8 +158,8 @@ export const ItemsValueSchema = z.object({
   classes: z.array(ClassElementSchema),
   gold: GoldSchema,
   placeholder: z.string(),
-  tier: z.number(),
   type: z.array(z.any()),
+  rank: z.array(rankSchema),
 });
 export type ItemsValue = z.infer<typeof ItemsValueSchema>;
 

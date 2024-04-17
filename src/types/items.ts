@@ -11,7 +11,6 @@ export interface Item {
   nicknames: string[];
   requiredChampion: RequiredChampion;
   simpleDescription: null | string;
-  tier: number;
   stats: Stats;
   classes: ChampionClass[];
   categories: Category[];
@@ -31,6 +30,7 @@ export interface Item {
   price?: number;
   priceTotal?: number;
   iconPath?: string;
+  rank?: Rank[];
 }
 
 export enum Category {
@@ -166,7 +166,6 @@ export enum Rank {
 export interface MerakiItem {
   name: string;
   id: number;
-  tier: number;
   rank: Rank[];
   buildsFrom?: number[];
   buildsInto?: number[];
@@ -335,7 +334,6 @@ export interface BlitzItem {
   into?: number[];
   from?: number[];
   depth?: number;
-  tier?: number;
 }
 
 export interface BlitzStats {

@@ -127,6 +127,7 @@ export function getMerakiItemData(
     "stats",
     "passives",
     "active",
+    "rank",
   ];
   // Loop through each item in the MerakiAnalytics endpoint
   Object.entries(merakiItemData).forEach(([itemKey, itemValues]) => {

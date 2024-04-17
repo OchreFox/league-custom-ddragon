@@ -20,7 +20,7 @@ export const defaultValues: Item = {
   requiredChampion: RequiredChampion.Empty,
   simpleDescription: "",
   stats: {},
-  tier: 0,
   type: [],
   active: false,
+  rank: [],
 };
